@@ -11,6 +11,10 @@ jobs:
   notify:
     runs-on: ubuntu-latest
 
+    # 自動コミットするために書き込み権限を付与
+    permissions:
+      contents: write
+
     steps:
       # 1. リポジトリのコードをチェックアウト
       - name: Checkout repository

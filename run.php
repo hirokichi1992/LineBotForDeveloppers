@@ -73,11 +73,11 @@ $body = [
 
 // LINE APIにリクエストを送信
 $ch = curl_init(LINE_API_URL);
-cost_setopt($ch, CURLOPT_POST, true);
-cost_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-cost_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-cost_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-cost_setopt($ch, CURLOPT_HTTPHEADER, [
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Content-Type: application/json',
     'Authorization: Bearer ' . $channelAccessToken,
 ]);

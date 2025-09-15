@@ -1,13 +1,21 @@
-# MDN Notifier for LINE
+# Tech Feed Notifier for LINE
 
-MDNブログの新着記事をLINEに通知するBotです。
-GitHub Actionsを利用して、1時間に1回自動で新着を確認し、新しい記事があった場合にのみLINEにプッシュ通知を送信します。
+開発者向けの技術ブログやニュースの新着記事をLINEに通知するBotです。
+GitHub Actionsを利用して、1時間に1回自動で新着を確認し、新しい記事があった場合にAIによる要約付きでLINEにプッシュ通知を送信します。
+
+## 主な特徴
+
+- **複数フィード対応**: MDN、企業テックブログ、PHP公式、Laravel Newsなど、複数のRSSフィードを監視します。
+- **AIによる要約**: 新着記事の本文を取得し、GoogleのGemini APIを利用して約100文字の要約を自動生成します。
+- **サーバーレス**: GitHub Actions上で直接動作するため、自分でサーバーを運用する必要がありません。
+- **簡単セットアップ**: いくつかの認証情報を設定するだけで、すぐに利用を開始できます。
 
 ## 必要なもの
 
 - GitHubアカウント
 - LINEアカウント
 - LINE Developersアカウント
+- [Google AI APIキー](https://ai.google.dev/pricing) (AI要約機能に必要)
 
 ## セットアップ手順
 
@@ -38,17 +46,21 @@ LINEチャネルのWebhook URLを設定することで、ユーザーIDを確認
 
 ### 4. GitHub Secretsの設定
 
-次に、LINEの認証情報をGitHubリポジトリに安全に保存します。
+次に、LINEとAIの認証情報をGitHubリポジトリに安全に保存します。
 
 1.  作成したGitHubリポジトリのページを開き、「Settings」タブに移動します。
 2.  左側のメニューから「Secrets and variables」>「Actions」を選択します。
-3.  「New repository secret」ボタンを押し、以下の2つのシークレットを登録します。
+3.  「New repository secret」ボタンを押し、以下のシークレットを登録します。
 
-    -   **`LINE_CHANNEL_ACCESS_TOKEN`**: 
+    -   **`LINE_CHANNEL_ACCESS_TOKEN`** (必須): 
         - 値：手順1で取得した**チャネルアクセストークン（長期）**
 
-    -   **`LINE_USER_ID`**: 
+    -   **`LINE_USER_ID`** (必須): 
         - 値：手順2で取得したご自身の**LINEユーザーID**
+
+    -   **`AI_API_KEY`** (任意):
+        - 値：[Google AI Studio](https://aistudio.google.com/app/apikey)などで取得した**Gemini APIキー**
+        - **※** このキーを設定しない場合、AI要約の代わりに記事概要の冒頭が通知されます。
 
 ## 動作の確認
 
@@ -59,4 +71,4 @@ LINEチャネルのWebhook URLを設定することで、ユーザーIDを確認
 2.  左側のワークフローリストから「Send LINE Notification」を選択します。
 3.  「Run workflow」というドロップダウンが表示されるので、ブランチを選択して「Run workflow」ボタンを押します。
 
-実行ログを確認し、エラーが出ていなければ成功です。MDNブログに新しい記事があれば、LINEに通知が届きます。
+実行ログを確認し、エラーが出ていなければ成功です。監視対象のフィードに新しい記事があれば、LINEに通知が届きます。

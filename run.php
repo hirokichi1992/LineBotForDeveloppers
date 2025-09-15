@@ -31,9 +31,9 @@ $feeds = [
         'label' => 'PHP公式ニュース'
     ],
     [
-        'name' => 'laravel_news',
-        'url' => 'http://feed.laravel-news.com/',
-        'label' => 'Laravel News'
+        'name' => 'freek_dev',
+        'url' => 'https://freek.dev/feed',
+        'label' => 'Freek.dev Blog'
     ],
     [
         'name' => 'publickey',
@@ -47,7 +47,7 @@ $feeds = [
     ],
     [
         'name' => 'hacker_news',
-        'url' => 'https://feeds.feedburner.com/TheHackerNews',
+        'url' => 'https://thehackernews.com/feeds/posts/default',
         'label' => 'The Hacker News'
     ],
     [
@@ -59,6 +59,11 @@ $feeds = [
         'name' => 'qiita',
         'url' => 'https://qiita.com/popular-items/feed',
         'label' => 'Qiita トレンド'
+    ],
+    [
+        'name' => 'ipa_alert',
+        'url' => 'https://www.ipa.go.jp/security/rss/alert.rdf',
+        'label' => 'IPA 重要なセキュリティ情報'
     ],
 
 ];

@@ -100,7 +100,7 @@ function getAiSummary(string $text, string $apiKey): string {
     }
 
     echo "[INFO] Requesting AI summary...\n";
-    $prompt = "以下の記事を日本語で100文字程度に要約してください。:\n\n" . mb_substr($text, 0, 15000); // 長すぎるテキストを切り詰める
+    $prompt = "以下の記事を日本語で200文字程度に要約してください。顧客ごとに合わせたスクラッチ開発をしているWeb系のエンジニアに対する要約であることも踏まえて単なる要約ではない業務に応用できるような提案も含めた形でお願いします。:\n\n" . mb_substr($text, 0, 15000); // 長すぎるテキストを切り詰める
 
     $data = [
         'contents' => [

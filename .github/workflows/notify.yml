@@ -34,6 +34,7 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          SCRAPING_API_KEY: ${{ secrets.SCRAPING_API_KEY }}
         run: php run.php
 
       # 4. last_notified_url.txtの変更を自動コミット

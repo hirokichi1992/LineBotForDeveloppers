@@ -5,6 +5,7 @@
 $channelAccessToken = getenv('LINE_CHANNEL_ACCESS_TOKEN');
 $userId = getenv('LINE_USER_ID');
 $apiKey = getenv('AI_API_KEY');
+$scrapingApiKey = getenv('SCRAPING_API_KEY');
 
 if (!$channelAccessToken || !$userId) {
     die("[ERROR] Environment variables LINE_CHANNEL_ACCESS_TOKEN and LINE_USER_ID must be set.\n");
@@ -39,6 +40,7 @@ $feeds = [
 
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
 define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
+define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
 
 // ----------------------------------------------------------------------------
 // ヘルパー関数
@@ -46,17 +48,32 @@ define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/model
 
 /**
  * URLから記事の本文を取得する
+ * SCRAPING_API_KEYが設定されていればBrowserless.ioを、なければcURLを直接使う
  */
-function getArticleText(string $url): string {
+function getArticleText(string $url, string $scrapingApiKey): string {
     echo "[INFO] Fetching article content from: {$url}\n";
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+
+    if (!empty($scrapingApiKey)) {
+        echo "[INFO] Using Browserless.io to fetch content.\n";
+        $ch = curl_init(BROWSERLESS_API_URL . '?token=' . $scrapingApiKey);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['url' => $url]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    } else {
+        echo "[INFO] Using direct cURL to fetch content.\n";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    }
+
     $html = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($html === false) {
+    if ($http_code !== 200 || $html === false) {
+        echo "[WARNING] Failed to fetch article content. HTTP Status: {$http_code}\n";
         return '';
     }
 
@@ -64,7 +81,8 @@ function getArticleText(string $url): string {
     $text = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $html);
     $text = preg_replace('#<style(.*?)>(.*?)</style>#is', '', $text);
     $text = strip_tags($text);
-    $text = preg_replace('/\s+/s', ' ', $text); // 複数の空白を1つに
+    $text = preg_replace('/
++/s', ' ', $text); // 複数の改行を1つに
     return trim($text);
 }
 
@@ -145,13 +163,15 @@ foreach ($feeds as $feed) {
         continue;
     }
 
-    $latest_item = $rss->channel->item[0] ?? $rss->item[0] ?? null;
+    // 最新の記事を取得 (RSS 2.0 / Atom両対応)
+    $latest_item = $rss->channel->item[0] ?? $rss->item[0] ?? $rss->entry[0] ?? null;
     if (!$latest_item) {
         echo "[WARNING] Could not find any items in the RSS feed for {$feed_name}. Skipping.\n";
         continue;
     }
 
-    $latest_url = (string)$latest_item->link;
+    // 各要素を取得 (RSS 2.0 / Atom両対応)
+    $latest_url = (string)($latest_item->link['href'] ?? $latest_item->link);
     $latest_title = (string)$latest_item->title;
     $latest_pubDate = (string)($latest_item->pubDate ?? $latest_item->updated);
 
@@ -168,7 +188,7 @@ foreach ($feeds as $feed) {
 
     // --- 要約処理 ---
     $summary = '';
-    $articleText = getArticleText($latest_url);
+    $articleText = getArticleText($latest_url, $scrapingApiKey);
     $aiSummary = getAiSummary($articleText, $apiKey);
 
     if (!empty($aiSummary)) {

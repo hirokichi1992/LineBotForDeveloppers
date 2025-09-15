@@ -34,11 +34,7 @@ $feeds = [
         'url' => 'http://feed.laravel-news.com/',
         'label' => 'Laravel News'
     ],
-    [
-        'name' => 'php_weekly',
-        'url' => 'https://phpweekly.com/feed',
-        'label' => 'PHP Weekly'
-    ]
+    
 ];
 
 // LINE APIのエンドポイント
@@ -80,6 +76,11 @@ foreach ($feeds as $feed) {
     $latest_url = (string)$latest_item->link;
     $latest_title = (string)$latest_item->title;
     $latest_pubDate = (string)($latest_item->pubDate ?? $latest_item->updated);
+    $description = strip_tags((string)($latest_item->description ?? $latest_item->summary)); // HTMLタグを除去
+    $summary = mb_substr($description, 0, 100);
+    if (mb_strlen($description) > 100) {
+        $summary .= '…';
+    }
 
     echo "[INFO] Latest article found: {$latest_title} ({$latest_url})\n";
 
@@ -96,10 +97,11 @@ foreach ($feeds as $feed) {
 
     // LINEに送信するメッセージを作成
     $message = sprintf(
-        "【%s】\n%s\n%s\n\n%s",
+        "【%s】\n%s\n%s\n\n--- (要約) ---\n%s\n\n%s",
         $message_label,
         $latest_title,
         date('Y/m/d H:i', strtotime($latest_pubDate)),
+        $summary,
         $latest_url
     );
 

@@ -35,6 +35,31 @@ $feeds = [
         'url' => 'http://feed.laravel-news.com/',
         'label' => 'Laravel News'
     ],
+    [
+        'name' => 'publickey',
+        'url' => 'https://www.publickey1.jp/atom.xml',
+        'label' => 'Publickey'
+    ],
+    [
+        'name' => 'aws_arch',
+        'url' => 'https://aws.amazon.com/blogs/architecture/feed/',
+        'label' => 'AWS Architecture Blog'
+    ],
+    [
+        'name' => 'hacker_news',
+        'url' => 'https://feeds.feedburner.com/TheHackerNews',
+        'label' => 'The Hacker News'
+    ],
+    [
+        'name' => 'css_tricks',
+        'url' => 'https://css-tricks.com/feed/',
+        'label' => 'CSS-Tricks'
+    ],
+    [
+        'name' => 'qiita',
+        'url' => 'https://qiita.com/popular-items/feed',
+        'label' => 'Qiita トレンド'
+    ],
 
 ];
 

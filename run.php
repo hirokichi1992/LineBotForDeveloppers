@@ -161,6 +161,30 @@ function getAiSummary(string $text, string $apiKey): string {
     return trim($summary);
 }
 
+/**
+ * cURLを使ってRSSフィードの内容を堅牢に取得する
+ */
+function fetchRssContent(string $url): string|false {
+    echo "[INFO] Fetching RSS feed from: {$url}\n";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    // 一般的なユーザーエージェントを設定してブラウザを模倣する
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    // 明示的にXMLコンテンツを要求する
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/atom+xml, application/rss+xml, application/xml;q=0.9, */*;q=0.8']);
+
+    $content = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code !== 200 || $content === false) {
+        echo "[WARNING] Failed to fetch RSS feed. HTTP Status: {$http_code}\n";
+        return false;
+    }
+    return $content;
+}
+
 
 // ----------------------------------------------------------------------------
 // メイン処理
@@ -174,15 +198,16 @@ foreach ($feeds as $feed) {
 
     echo "--------------------------------------------------\n";
     echo "[INFO] Processing feed: {$feed_name}\n";
-    echo "[INFO] Fetching RSS feed from: {$rss_url}\n";
 
-    $rss_content = @file_get_contents($rss_url);
+    $rss_content = fetchRssContent($rss_url);
     if ($rss_content === false) {
-        echo "[WARNING] Failed to fetch RSS feed for {$feed_name}. Skipping.\n";
         continue;
     }
 
+    // XMLパースエラーを内部で処理するように設定
+    libxml_use_internal_errors(true);
     $rss = simplexml_load_string($rss_content);
+
     if ($rss === false) {
         echo "[WARNING] Failed to parse RSS feed for {$feed_name}. Skipping.\n";
         continue;

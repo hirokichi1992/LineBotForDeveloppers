@@ -1,1 +1,1 @@
-https://css-tricks.com/what-can-we-actually-do-with-corner-shape/
+https://css-tricks.com/the-most-hated-css-feature-cos-and-sin/

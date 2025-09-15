@@ -12,90 +12,139 @@ if (!$channelAccessToken || !$userId) {
 // ----------------------------------------------------------------------------
 // 定数
 // ----------------------------------------------------------------------------
-// MDNのRSSフィードURL
-define('RSS_URL', 'https://developer.mozilla.org/en-US/blog/rss.xml');
+// 監視対象のRSSフィードリスト
+$feeds = [
+    [
+        'name' => 'mdn',
+        'url' => 'https://developer.mozilla.org/en-US/blog/rss.xml',
+        'label' => 'MDN新着記事'
+    ],
+    [
+        'name' => 'tech',
+        'url' => 'https://yamadashy.github.io/tech-blog-rss-feed/feeds/rss.xml',
+        'label' => '企業テックブログ新着記事'
+    ],
+    [
+        'name' => 'php',
+        'url' => 'https://php.net/feed.atom',
+        'label' => 'PHP公式ニュース'
+    ],
+    [
+        'name' => 'laravel_news',
+        'url' => 'http://feed.laravel-news.com/',
+        'label' => 'Laravel News'
+    ],
+    [
+        'name' => 'php_weekly',
+        'url' => 'https://phpweekly.com/feed',
+        'label' => 'PHP Weekly'
+    ]
+];
+
 // LINE APIのエンドポイント
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
-// 最後に通知した記事のURLを保存するファイル
-define('LAST_URL_FILE', __DIR__ . '/last_notified_url.txt');
 
 // ----------------------------------------------------------------------------
 // メイン処理
 // ----------------------------------------------------------------------------
 
-echo "[INFO] Fetching RSS feed from: " . RSS_URL . "\n";
-$rss_content = file_get_contents(RSS_URL);
-if ($rss_content === false) {
-    die("[ERROR] Failed to fetch RSS feed.\n");
-}
+foreach ($feeds as $feed) {
+    $feed_name = $feed['name'];
+    $rss_url = $feed['url'];
+    $message_label = $feed['label'];
+    $last_url_file = __DIR__ . '/last_notified_url_' . $feed_name . '.txt';
 
-$rss = simplexml_load_string($rss_content);
-if ($rss === false) {
-    die("[ERROR] Failed to parse RSS feed.\n");
-}
+    echo "--------------------------------------------------\n";
+    echo "[INFO] Processing feed: {$feed_name}\n";
+    echo "[INFO] Fetching RSS feed from: {$rss_url}\n";
 
-// 最新の記事を取得 (RSSフィードの最初のitem)
-$latest_item = $rss->channel->item[0];
-$latest_url = (string)$latest_item->link;
-$latest_title = (string)$latest_item->title;
-$latest_pubDate = (string)$latest_item->pubDate;
+    $rss_content = @file_get_contents($rss_url);
+    if ($rss_content === false) {
+        echo "[WARNING] Failed to fetch RSS feed for {$feed_name}. Skipping.\n";
+        continue;
+    }
 
-echo "[INFO] Latest article found: {$latest_title} ({$latest_url})\n";
+    $rss = simplexml_load_string($rss_content);
+    if ($rss === false) {
+        echo "[WARNING] Failed to parse RSS feed for {$feed_name}. Skipping.\n";
+        continue;
+    }
 
-// 前回のURLを取得
-$last_notified_url = file_exists(LAST_URL_FILE) ? file_get_contents(LAST_URL_FILE) : '';
+    // 最新の記事を取得
+    $latest_item = $rss->channel->item[0] ?? $rss->item[0] ?? null;
+    if (!$latest_item) {
+        echo "[WARNING] Could not find any items in the RSS feed for {$feed_name}. Skipping.\n";
+        continue;
+    }
 
-// URLを比較して、新着でなければ終了
-if ($latest_url === $last_notified_url) {
-    echo "[INFO] No new articles found. Exiting.\n";
-    exit(0);
-}
+    $latest_url = (string)$latest_item->link;
+    $latest_title = (string)$latest_item->title;
+    $latest_pubDate = (string)($latest_item->pubDate ?? $latest_item->updated);
 
-echo "[INFO] New article detected! Preparing to send LINE notification.\n";
+    echo "[INFO] Latest article found: {$latest_title} ({$latest_url})\n";
 
-// LINEに送信するメッセージを作成
-$message = sprintf(
-    "【MDN新着記事】\n%s\n%s\n\n%s",
-    $latest_title,
-    date('Y/m/d H:i', strtotime($latest_pubDate)),
-    $latest_url
-);
+    // 前回のURLを取得
+    $last_notified_url = file_exists($last_url_file) ? file_get_contents($last_url_file) : '';
 
-$body = [
-    'to' => $userId,
-    'messages' => [
-        [
-            'type' => 'text',
-            'text' => $message,
+    // URLを比較して、新着でなければ次へ
+    if ($latest_url === $last_notified_url) {
+        echo "[INFO] No new articles found for {$feed_name}.\n";
+        continue;
+    }
+
+    echo "[INFO] New article detected! Preparing to send LINE notification.\n";
+
+    // LINEに送信するメッセージを作成
+    $message = sprintf(
+        "【%s】\n%s\n%s\n\n%s",
+        $message_label,
+        $latest_title,
+        date('Y/m/d H:i', strtotime($latest_pubDate)),
+        $latest_url
+    );
+
+    $body = [
+        'to' => $userId,
+        'messages' => [
+            [
+                'type' => 'text',
+                'text' => $message,
+            ],
         ],
-    ],
-];
+    ];
 
-// LINE APIにリクエストを送信
-$ch = curl_init(LINE_API_URL);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json',
-    'Authorization: Bearer ' . $channelAccessToken,
-]);
+    // LINE APIにリクエストを送信
+    $ch = curl_init(LINE_API_URL);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $channelAccessToken,
+    ]);
 
-$result = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+    $result = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
-if ($http_code == 200) {
-    echo "[SUCCESS] Notification sent successfully.\n";
-    // 最後に通知したURLをファイルに保存
-    file_put_contents(LAST_URL_FILE, $latest_url);
-    echo "[INFO] Updated last notified URL to: {$latest_url}\n";
-} else {
-    echo "[ERROR] Failed to send LINE notification. HTTP Status: {$http_code}\n";
-    echo "[ERROR] Response: {$result}\n";
-    exit(1); // エラーで終了
+    if ($http_code == 200) {
+        echo "[SUCCESS] Notification sent successfully for {$feed_name}.\n";
+        // 最後に通知したURLをファイルに保存
+        file_put_contents($last_url_file, $latest_url);
+        echo "[INFO] Updated last notified URL to: {$latest_url}\n";
+    } else {
+        echo "[ERROR] Failed to send LINE notification for {$feed_name}. HTTP Status: {$http_code}\n";
+        echo "[ERROR] Response: {$result}\n";
+        // このフィードでエラーが起きても、他のフィードの処理を続ける
+    }
+    
+    // APIリクエストのレート制限を避けるために少し待機
+    sleep(1);
 }
 
+echo "--------------------------------------------------\n";
+echo "[INFO] All feeds processed. Exiting.\n";
 exit(0);
+
 

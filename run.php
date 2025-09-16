@@ -363,7 +363,7 @@ foreach ($feeds as $feed) {
     ];
 
     // 画像があればHeroブロックを追加し、URLが有効かどうかも確認
-    if (!empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+    if (!empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL) && strlen($imageUrl) <= 2000) {
         $bubble['hero'] = [
             'type' => 'image',
             'url' => $imageUrl,

@@ -77,10 +77,10 @@ define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
 // ----------------------------------------------------------------------------
 
 /**
- * URLから記事の本文を取得する
+ * URLから記事の本文とog:imageを取得する
  * SCRAPING_API_KEYが設定されていればBrowserless.ioを、なければcURLを直接使う
  */
-function getArticleText(string $url, string $scrapingApiKey): string {
+function fetchArticleContent(string $url, string $scrapingApiKey): array {
     echo "[INFO] Fetching article content from: {$url}\n";
 
     if (!empty($scrapingApiKey)) {
@@ -104,17 +104,28 @@ function getArticleText(string $url, string $scrapingApiKey): string {
 
     if ($http_code !== 200 || $html === false) {
         echo "[WARNING] Failed to fetch article content. HTTP Status: {$http_code}\n";
-        return '';
+        return ['text' => '', 'image_url' => ''];
+    }
+
+    // og:imageを抽出
+    $imageUrl = '';
+    if (preg_match('/<meta\s+property=(?P<quote>["\'])og:image(?P=quote)\s+content=(?P<quote2>["\'])(.*?)(?P=quote2)\s*\/?>/i', $html, $matches)) {
+        $imageUrl = html_entity_decode($matches[3]);
+        echo "[INFO] Found og:image: {$imageUrl}\n";
+    } else {
+        echo "[INFO] og:image not found.\n";
     }
 
     // 簡単なHTMLクリーンアップ
     $text = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $html);
     $text = preg_replace('#<style(.*?)>(.*?)</style>#is', '', $text);
     $text = strip_tags($text);
-    $text = preg_replace('/
-+/s', ' ', $text); // 複数の改行を1つに
-    return trim($text);
+    $text = preg_replace('/\s+/s', ' ', $text); // 複数の空白・改行を1つに
+    $text = trim($text);
+
+    return ['text' => $text, 'image_url' => $imageUrl];
 }
+
 
 /**
  * Gemini APIを呼び出してテキストを要約する
@@ -241,9 +252,12 @@ foreach ($feeds as $feed) {
 
     echo "[INFO] New article detected! Preparing to send LINE notification.\n";
 
-    // --- 要約処理 ---
+    // --- コンテンツ取得と要約 ---
+    $articleContent = fetchArticleContent($latest_url, $scrapingApiKey);
+    $articleText = $articleContent['text'];
+    $imageUrl = $articleContent['image_url'];
+
     $summary = '';
-    $articleText = getArticleText($latest_url, $scrapingApiKey);
     $aiSummary = getAiSummary($articleText, $apiKey);
 
     if (!empty($aiSummary)) {
@@ -257,99 +271,112 @@ foreach ($feeds as $feed) {
             $summary .= '…';
         }
     }
-    // --- 要約処理ここまで ---
+    // --- コンテンツ取得と要約ここまで ---
+
+    $bubble = [
+        'type' => 'bubble',
+        'header' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => sprintf('[ SOURCE: %s ]', $message_label),
+                    'weight' => 'bold',
+                    'color' => '#1DB446',
+                    'size' => 'sm',
+                ],
+            ],
+        ],
+        'body' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'spacing' => 'md',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => 'TITLE',
+                    'size' => 'xs',
+                    'color' => '#aaaaaa',
+                    'wrap' => true,
+                ],
+                [
+                    'type' => 'text',
+                    'text' => $latest_title,
+                    'weight' => 'bold',
+                    'size' => 'xl',
+                    'wrap' => true,
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'DATE',
+                    'size' => 'xs',
+                    'color' => '#aaaaaa',
+                    'wrap' => true,
+                    'margin' => 'lg',
+                ],
+                [
+                    'type' => 'text',
+                    'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
+                    'wrap' => true,
+                    'size' => 'sm',
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'SUMMARY',
+                    'size' => 'xs',
+                    'color' => '#aaaaaa',
+                    'wrap' => true,
+                    'margin' => 'lg',
+                ],
+                [
+                    'type' => 'text',
+                    'text' => $summary,
+                    'wrap' => true,
+                    'size' => 'sm',
+                    'margin' => 'md',
+                ],
+            ],
+        ],
+        'footer' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'spacing' => 'sm',
+            'contents' => [
+                [
+                    'type' => 'separator',
+                ],
+                [
+                    'type' => 'button',
+                    'action' => [
+                        'type' => 'uri',
+                        'label' => '記事を読む',
+                        'uri' => $latest_url,
+                    ],
+                    'style' => 'primary',
+                    'height' => 'sm',
+                    'color' => '#1E2A38',
+                ],
+            ],
+            'flex' => 0,
+        ],
+    ];
+
+    // 画像があればHeroブロックを追加し、URLが有効かどうかも確認
+    if (!empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+        $bubble['hero'] = [
+            'type' => 'image',
+            'url' => $imageUrl,
+            'size' => 'full',
+            'aspectRatio' => '20:13',
+            'aspectMode' => 'cover',
+        ];
+    }
 
     $flexMessage = [
         'type' => 'flex',
         'altText' => sprintf('【%s】%s', $message_label, $latest_title),
-        'contents' => [
-            'type' => 'bubble',
-            'header' => [
-                'type' => 'box',
-                'layout' => 'vertical',
-                'contents' => [
-                    [
-                        'type' => 'text',
-                        'text' => sprintf('[ SOURCE: %s ]', $message_label),
-                        'weight' => 'bold',
-                        'color' => '#1DB446',
-                        'size' => 'sm',
-                    ],
-                ],
-            ],
-            'body' => [
-                'type' => 'box',
-                'layout' => 'vertical',
-                'spacing' => 'md',
-                'contents' => [
-                    [
-                        'type' => 'text',
-                        'text' => 'TITLE',
-                        'size' => 'xs',
-                        'color' => '#aaaaaa',
-                        'wrap' => true,
-                    ],
-                    [
-                        'type' => 'text',
-                        'text' => $latest_title,
-                        'weight' => 'bold',
-                        'size' => 'xl',
-                        'wrap' => true,
-                    ],
-                    [
-                        'type' => 'text',
-                        'text' => 'DATE',
-                        'size' => 'xs',
-                        'color' => '#aaaaaa',
-                        'wrap' => true,
-                        'margin' => 'lg',
-                    ],
-                    [
-                        'type' => 'text',
-                        'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
-                        'wrap' => true,
-                        'size' => 'sm',
-                    ],
-                    [
-                        'type' => 'text',
-                        'text' => 'SUMMARY',
-                        'size' => 'xs',
-                        'color' => '#aaaaaa',
-                        'wrap' => true,
-                        'margin' => 'lg',
-                    ],
-                    [
-                        'type' => 'text',
-                        'text' => $summary,
-                        'wrap' => true,
-                        'size' => 'sm',
-                        'margin' => 'md',
-                    ],
-                ],
-            ],
-            'footer' => [
-                'type' => 'box',
-                'layout' => 'vertical',
-                'spacing' => 'sm',
-                'contents' => [
-                    [
-                        'type' => 'separator',
-                    ],
-                    [
-                        'type' => 'button',
-                        'action' => [
-                            'type' => 'uri',
-                            'label' => '記事を読む',
-                            'uri' => $latest_url,
-                        ],
-                        'style' => 'primary',
-                        'height' => 'sm',
-                        'color' => '#1E2A38',
-                    ],
-                ],
-                'flex' => 0,
-            ],
-        ],
+        'contents' => $bubble,
     ];
 
     $body = [

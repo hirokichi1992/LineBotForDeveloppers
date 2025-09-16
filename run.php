@@ -6,6 +6,7 @@ $channelAccessToken = getenv('LINE_CHANNEL_ACCESS_TOKEN');
 $userId = getenv('LINE_USER_ID');
 $apiKey = getenv('AI_API_KEY');
 $scrapingApiKey = getenv('SCRAPING_API_KEY');
+$force_delivery = getenv('FORCE_DELIVERY') === 'true'; // 強制実行モード
 
 if (!$channelAccessToken || !$userId) {
     die("[ERROR] Environment variables LINE_CHANNEL_ACCESS_TOKEN and LINE_USER_ID must be set.\n");
@@ -245,7 +246,9 @@ foreach ($feeds as $feed) {
 
     $last_notified_url = file_exists($last_url_file) ? file_get_contents($last_url_file) : '';
 
-    if ($latest_url === $last_notified_url) {
+    if ($force_delivery) {
+        echo "[INFO] FORCE_DELIVERY mode is active. Sending notification regardless of last URL.\n";
+    } else if ($latest_url === $last_notified_url) {
         echo "[INFO] No new articles found for {$feed_name}.\n";
         continue;
     }

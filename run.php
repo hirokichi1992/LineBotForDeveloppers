@@ -259,20 +259,102 @@ foreach ($feeds as $feed) {
     }
     // --- 要約処理ここまで ---
 
-    $message = sprintf(
-        "┌─[ SOURCE: %s ]──────────\n│\n├─ TITLE: %s\n├─ DATE: %s\n├─ URL: %s\n│\n└─[ SUMMARY ]\n%s",
-        $message_label,
-        $latest_title,
-        date('Y/m/d H:i', strtotime($latest_pubDate)),
-        $latest_url,
-        $summary
-    );
+    $flexMessage = [
+        'type' => 'flex',
+        'altText' => sprintf('【%s】%s', $message_label, $latest_title),
+        'contents' => [
+            'type' => 'bubble',
+            'header' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'contents' => [
+                    [
+                        'type' => 'text',
+                        'text' => sprintf('[ SOURCE: %s ]', $message_label),
+                        'weight' => 'bold',
+                        'color' => '#1DB446',
+                        'size' => 'sm',
+                    ],
+                ],
+            ],
+            'body' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'spacing' => 'md',
+                'contents' => [
+                    [
+                        'type' => 'text',
+                        'text' => 'TITLE',
+                        'size' => 'xs',
+                        'color' => '#aaaaaa',
+                        'wrap' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => $latest_title,
+                        'weight' => 'bold',
+                        'size' => 'xl',
+                        'wrap' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => 'DATE',
+                        'size' => 'xs',
+                        'color' => '#aaaaaa',
+                        'wrap' => true,
+                        'margin' => 'lg',
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
+                        'wrap' => true,
+                        'size' => 'sm',
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => 'SUMMARY',
+                        'size' => 'xs',
+                        'color' => '#aaaaaa',
+                        'wrap' => true,
+                        'margin' => 'lg',
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => $summary,
+                        'wrap' => true,
+                        'size' => 'sm',
+                        'margin' => 'md',
+                    ],
+                ],
+            ],
+            'footer' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'spacing' => 'sm',
+                'contents' => [
+                    [
+                        'type' => 'separator',
+                    ],
+                    [
+                        'type' => 'button',
+                        'action' => [
+                            'type' => 'uri',
+                            'label' => '記事を読む',
+                            'uri' => $latest_url,
+                        ],
+                        'style' => 'primary',
+                        'height' => 'sm',
+                        'color' => '#1E2A38',
+                    ],
+                ],
+                'flex' => 0,
+            ],
+        ],
+    ];
 
     $body = [
         'to' => $userId,
-        'messages' => [
-            ['type' => 'text', 'text' => $message]
-        ]
+        'messages' => [$flexMessage],
     ];
 
     $ch = curl_init(LINE_API_URL);

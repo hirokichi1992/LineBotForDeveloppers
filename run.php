@@ -129,7 +129,7 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array {
 
 
 /**
- * Gemini APIを呼び出してテキストを要約する
+ * Gemini APIを呼び出してテキストを要約する (リトライ機能付き)
  */
 function getAiSummary(string $text, string $apiKey): string {
     if (empty($apiKey)) {
@@ -141,42 +141,69 @@ function getAiSummary(string $text, string $apiKey): string {
         return '';
     }
 
-    echo "[INFO] Requesting AI summary...\n";
-    $prompt = "以下の記事を日本語で200文字程度に要約してください。顧客ごとに合わせたスクラッチ開発をしているWeb系のエンジニアに対する要約であることも踏まえて単なる要約ではない業務に応用できるような提案も含めた形でお願いします。:\n\n" . mb_substr($text, 0, 15000); // 長すぎるテキストを切り詰める
+    $max_retries = 3;
+    $retry_delay_seconds = 2; // 初回待機時間
 
-    $data = [
-        'contents' => [
-            [
-                'parts' => [
-                    ['text' => $prompt]
+    for ($attempt = 1; $attempt <= $max_retries; $attempt++) {
+        echo "[INFO] Requesting AI summary (Attempt {$attempt}/{$max_retries})...";
+        $prompt = "以下の記事を日本語で200文字程度に要約してください。顧客ごとに合わせたスクラッチ開発をしているWeb系のエンジニアに対する要約であることも踏まえて単なる要約ではない業務に応用できるような提案も含めた形でお願いします。:";
+        $prompt .= "\n\n" . mb_substr($text, 0, 15000); // 長すぎるテキストを切り詰める
+
+        $data = [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt]
+                    ]
                 ]
+            ],
+            'generationConfig' => [
+                'maxOutputTokens' => 256,
             ]
-        ],
-        'generationConfig' => [
-            'maxOutputTokens' => 256,
-        ]
-    ];
+        ];
 
-    $ch = curl_init(GEMINI_API_URL . '?key=' . $apiKey);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        $ch = curl_init(GEMINI_API_URL . '?key=' . $apiKey);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL検証をスキップ
 
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
 
-    if ($http_code !== 200) {
-        echo "[WARNING] AI summary request failed. HTTP Status: {$http_code}\nResponse: {$response}\n";
-        return '';
+        if ($curl_error) {
+            echo "[ERROR] cURL error on AI summary request: {$curl_error}\n";
+            return ''; // cURL自体のエラーではリトライしない
+        }
+
+        if ($http_code === 200) {
+            $result = json_decode($response, true);
+            $summary = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            return trim($summary); // 成功
+        }
+
+        // 503エラーの場合のみリトライ
+        if ($http_code === 503) {
+            echo "[WARNING] AI summary request failed with HTTP Status 503 (Service Unavailable).\n";
+            if ($attempt < $max_retries) {
+                echo "[INFO] Retrying in {$retry_delay_seconds} seconds...\n";
+                sleep($retry_delay_seconds);
+                $retry_delay_seconds *= 2; // 次の待機時間を倍にする
+            } 
+        } else {
+            // 4xxエラーやその他の5xxエラーではリトライしない
+            echo "[WARNING] AI summary request failed with non-retriable HTTP Status: {$http_code}\nResponse: {$response}\n";
+            return '';
+        }
     }
 
-    $result = json_decode($response, true);
-    $summary = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
-
-    return trim($summary);
+    echo "[ERROR] AI summary failed after {$max_retries} attempts.\n";
+    return ''; // すべてのリトライが失敗
 }
+
 
 /**
  * cURLを使ってRSSフィードの内容を堅牢に取得する

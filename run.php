@@ -260,12 +260,12 @@ foreach ($feeds as $feed) {
     // --- 要約処理ここまで ---
 
     $message = sprintf(
-        "【%s】\n%s\n%s\n\n--- (AI要約) ---\n%s\n\n%s",
+        "┌─[ SOURCE: %s ]──────────\n│\n├─ TITLE: %s\n├─ DATE: %s\n├─ URL: %s\n│\n└─[ SUMMARY ]\n%s",
         $message_label,
         $latest_title,
         date('Y/m/d H:i', strtotime($latest_pubDate)),
-        $summary,
-        $latest_url
+        $latest_url,
+        $summary
     );
 
     $body = [

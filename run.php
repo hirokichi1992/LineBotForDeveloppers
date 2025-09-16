@@ -278,6 +278,11 @@ foreach ($feeds as $feed) {
 
     $bubble = [
         'type' => 'bubble',
+        'styles' => [
+            'header' => ['backgroundColor' => '#1E2A38'],
+            'body'   => ['backgroundColor' => '#2D3748'],
+            'footer' => ['backgroundColor' => '#2D3748', 'separator' => true, 'separatorColor' => '#4A5568'],
+        ],
         'header' => [
             'type' => 'box',
             'layout' => 'vertical',
@@ -290,6 +295,7 @@ foreach ($feeds as $feed) {
                     'size' => 'sm',
                 ],
             ],
+            'paddingAll' => '12px',
         ],
         'body' => [
             'type' => 'box',
@@ -300,7 +306,7 @@ foreach ($feeds as $feed) {
                     'type' => 'text',
                     'text' => 'TITLE',
                     'size' => 'xs',
-                    'color' => '#aaaaaa',
+                    'color' => '#A0AEC0',
                     'wrap' => true,
                 ],
                 [
@@ -309,12 +315,13 @@ foreach ($feeds as $feed) {
                     'weight' => 'bold',
                     'size' => 'xl',
                     'wrap' => true,
+                    'color' => '#FFFFFF',
                 ],
                 [
                     'type' => 'text',
                     'text' => 'DATE',
                     'size' => 'xs',
-                    'color' => '#aaaaaa',
+                    'color' => '#A0AEC0',
                     'wrap' => true,
                     'margin' => 'lg',
                 ],
@@ -323,12 +330,13 @@ foreach ($feeds as $feed) {
                     'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
                     'wrap' => true,
                     'size' => 'sm',
+                    'color' => '#E2E8F0',
                 ],
                 [
                     'type' => 'text',
                     'text' => 'SUMMARY',
                     'size' => 'xs',
-                    'color' => '#aaaaaa',
+                    'color' => '#A0AEC0',
                     'wrap' => true,
                     'margin' => 'lg',
                 ],
@@ -338,6 +346,7 @@ foreach ($feeds as $feed) {
                     'wrap' => true,
                     'size' => 'sm',
                     'margin' => 'md',
+                    'color' => '#E2E8F0',
                 ],
             ],
         ],
@@ -347,9 +356,6 @@ foreach ($feeds as $feed) {
             'spacing' => 'sm',
             'contents' => [
                 [
-                    'type' => 'separator',
-                ],
-                [
                     'type' => 'button',
                     'action' => [
                         'type' => 'uri',
@@ -358,7 +364,7 @@ foreach ($feeds as $feed) {
                     ],
                     'style' => 'primary',
                     'height' => 'sm',
-                    'color' => '#1E2A38',
+                    'color' => '#4A5568',
                 ],
             ],
             'flex' => 0,

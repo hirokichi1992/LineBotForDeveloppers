@@ -77,7 +77,7 @@ $feeds = [
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
 define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
 define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
-define('WEEKLY_ARTICLES_FILE', __DIR__ . '/weekly_articles.json');
+define('WEEKLY_ARTICLES_FILE', dirname(__DIR__) . '/data/weekly_articles.json');
 
 // ----------------------------------------------------------------------------
 // ヘルパー関数
@@ -296,7 +296,7 @@ foreach ($feeds as $feed) {
     $feed_name = $feed['name'];
     $rss_url = $feed['url'];
     $message_label = $feed['label'];
-    $last_url_file = __DIR__ . '/last_notified_url_' . $feed_name . '.txt';
+    $last_url_file = dirname(__DIR__) . '/data/last_notified_url_' . $feed_name . '.txt';
 
     echo "--------------------------------------------------\n";
     echo "[INFO] Processing feed: {$feed_name}\n";

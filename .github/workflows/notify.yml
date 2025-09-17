@@ -31,12 +31,12 @@ jobs:
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           SCRAPING_API_KEY: ${{ secrets.SCRAPING_API_KEY }}
-        run: php run.php
+        run: php src/run.php
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: Update last notified URL and weekly data'
-          file_pattern: 'last_notified_url_*.txt weekly_articles.json'
+          file_pattern: 'data/last_notified_url_*.txt data/weekly_articles.json'
 
   # 週間サマリーの送信ジョブ
   send_summary:
@@ -58,9 +58,9 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-        run: php send_weekly_summary.php
+        run: php src/send_weekly_summary.php
       - name: Commit summary data cleanup
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: Cleanup weekly summary data'
-          file_pattern: 'weekly_articles.json'
+          file_pattern: 'data/weekly_articles.json'

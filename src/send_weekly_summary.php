@@ -13,7 +13,7 @@ if (!$channelAccessToken || !$userId || !$apiKey) {
 // ----------------------------------------------------------------------------
 // 定数
 // ----------------------------------------------------------------------------
-define('WEEKLY_ARTICLES_FILE', __DIR__ . '/weekly_articles.json');
+define('WEEKLY_ARTICLES_FILE', dirname(__DIR__) . '/data/weekly_articles.json');
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
 define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
 

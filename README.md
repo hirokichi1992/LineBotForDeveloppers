@@ -51,6 +51,7 @@
         -   通知を受け取りたいLINEユーザーのIDを設定します。これは、Botと友達になった後にWebhook経由で取得できます。
     -   **`AI_API_KEY`** (任意)
         -   Google AI Studioなどで取得したGemini APIキーを設定します。設定しない場合、AI要約機能は無効になり、記事の冒頭が通知されます。
+        -   **Gemini APIの利用上限について**: 無料枠では、1分あたり60リクエスト、1日あたり1,500リクエストの制限があります。これを超える利用をする場合は、有料プランへのアップグレードを検討してください。詳細は[公式ドキュメント](https://ai.google.dev/gemini-api/docs/rate-limits#free-tier)をご確認ください。
 
     ```dotenv
     LINE_CHANNEL_ACCESS_TOKEN="YOUR_CHANNEL_ACCESS_TOKEN"

@@ -358,5 +358,17 @@
         ],
         "source": "Publickey",
         "date": "2025-09-17T15:10:09Z"
+    },
+    {
+        "title": "Chinese TA415 Uses VS Code Remote Tunnels to Spy on U.S. Economic Policy Experts",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/chinese-ta415-uses-vs-code-remote.html",
+        "summary": "中国の脅威アクターTA415が、米中経済政策の専門家を標的としたスピアフィッシング攻撃にVS Code Remote Tunnelsを使用。偽装メールでマルウェアを配布し、システム情報を窃取。類似攻撃は過去にも確認されており、Webエンジニアは、VS Codeのセキュリティ設定を見直し、不審なリモート接続を監視する必要がある。多要素認証の導入や、エンドポイントセキュリティの強化も有効。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "サイバー攻撃"
+        ],
+        "source": "The Hacker News",
+        "date": "Wed, 17 Sep 2025 18:26:00 +0530"
     }
 ]

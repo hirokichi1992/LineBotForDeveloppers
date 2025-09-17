@@ -36,10 +36,14 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array {
         return ['text' => '', 'image_url' => ''];
     }
 
+    echo "[DEBUG] Fetched HTML (first 1000 chars):\n" . mb_substr($html, 0, 1000) . "\n"; // デバッグログ追加
+
     $imageUrl = '';
     if (preg_match('/<meta\s+property=(?P<quote>["\'])og:image(?P=quote)\s+content=(?P<quote2>["\'])(.*?)(?P=quote2)\s*\/?\?>/i', $html, $matches)) {
         $imageUrl = html_entity_decode($matches[3]);
         echo "[INFO] Found og:image: {$imageUrl}\n";
+    } else {
+        echo "[INFO] og:image meta tag not found in HTML.\n"; // デバッグログ追加
     }
 
     $text = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $html);
@@ -50,6 +54,7 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array {
 
     return ['text' => $text, 'image_url' => $imageUrl];
 }
+
 
 /**
  * Gemini APIを呼び出して、記事の要約とカテゴリ分類を一度に行う

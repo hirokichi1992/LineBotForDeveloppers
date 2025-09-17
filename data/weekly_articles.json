@@ -370,5 +370,17 @@
         ],
         "source": "The Hacker News",
         "date": "Wed, 17 Sep 2025 18:26:00 +0530"
+    },
+    {
+        "title": "TA558 Uses AI-Generated Scripts to Deploy Venom RAT in Brazil Hotel Attacks",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/ta558-uses-ai-generated-scripts-to.html",
+        "summary": "TA558と呼ばれる攻撃者が、ブラジルのホテルを標的にVenom RATを配布する際に、AIが生成したスクリプトを使用していることが報告されました。攻撃はフィッシングメールを介して行われ、AIによって生成されたJavaScriptローダーとPowerShellダウンローダーを利用しています。Webエンジニアは、AIが悪用されるリスクを認識し、セキュリティ対策を強化する必要があります。",
+        "tags": [
+            "セキュリティ",
+            "AI",
+            "Web開発"
+        ],
+        "source": "The Hacker News",
+        "date": "Thu, 18 Sep 2025 00:00:00 +0530"
     }
 ]

@@ -59,9 +59,9 @@ return [
         'label' => 'JVN 新着脆弱性情報'
     ],
     [
-        'name' => 'itmedia_career',
-        'url' => 'https://rss.itmedia.co.jp/rss/2.0/itmedia_career.xml',
-        'label' => 'ITmedia キャリア'
+        'name' => 'wantedly_engineers',
+        'url' => 'https://us.wantedly.com/feed/s/wantedly_engineers/rss.xml',
+        'label' => 'Wantedly Engineer Blog'
     ],
     [
         'name' => 'codezine',

@@ -287,6 +287,13 @@ foreach ($feeds as $feed) {
     $isImageUrlValid = !empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL) && strlen($imageUrl) <= 2000;
     echo "[DEBUG] Image URL validation result: " . ($isImageUrlValid ? "true" : "false") . "\n"; // デバッグログ追加
 
+    // og:imageが見つからなかった場合、フィード設定のdefault_image_urlを使用
+    if (!$isImageUrlValid && isset($feed['default_image_url']) && filter_var($feed['default_image_url'], FILTER_VALIDATE_URL) && strlen($feed['default_image_url']) <= 2000) {
+        $imageUrl = $feed['default_image_url'];
+        $isImageUrlValid = true; // デフォルト画像が有効なのでtrueに設定
+        echo "[DEBUG] Using default_image_url: " . $imageUrl . "\n"; // デバッグログ追加
+    }
+
     if ($isImageUrlValid) {
         $bubble['hero'] = [
             'type' => 'image',

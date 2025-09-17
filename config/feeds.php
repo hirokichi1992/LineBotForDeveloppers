@@ -16,7 +16,8 @@ return [
     [
         'name' => 'php',
         'url' => 'https://php.net/feed.atom',
-        'label' => 'PHP公式ニュース'
+        'label' => 'PHP公式ニュース',
+        'default_image_url' => 'https://www.php.net/images/logos/php-logo.svg' // 追加
     ],
     [
         'name' => 'freek_dev',

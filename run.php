@@ -77,6 +77,7 @@ $feeds = [
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
 define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
 define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
+define('WEEKLY_ARTICLES_FILE', __DIR__ . '/weekly_articles.json');
 
 // ----------------------------------------------------------------------------
 // ヘルパー関数
@@ -223,7 +224,8 @@ function getAiCategories(string $text, string $apiKey): array {
         return [];
     }
 
-    $prompt = "以下の記事は、ITエンジニアにとってどのようなカテゴリに分類されるか、指定されたタグの中から最も関連性の高いものを最大3つまで選び、カンマ区切りで出力してください。\n\n利用可能なタグ:\nセキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング, マネジメント, その他\n\n記事:\n" . mb_substr($text, 0, 8000) . "\n\n出力形式:\nタグ1,タグ2,タグ3";
+    $prompt = "以下の記事は、ITエンジニアにとってどのようなカテゴリに分類されるか、指定されたタグの中から最も関連性の高いものを最大3つまで選び、カンマ区切りで出力してください。\n\n利用可能なタグ:\nセキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング, マネジメント, その他\n\n記事:
+" . mb_substr($text, 0, 8000) . "\n\n出力形式:\nタグ1,タグ2,タグ3";
 
     $data = [
         'contents' => [
@@ -543,6 +545,22 @@ foreach ($feeds as $feed) {
         echo "[SUCCESS] Notification sent successfully for {$feed_name}.\n";
         file_put_contents($last_url_file, $latest_url);
         echo "[INFO] Updated last notified URL to: {$latest_url}\n";
+
+        // --- 週間サマリーのために記事情報を保存 ---
+        $articles = file_exists(WEEKLY_ARTICLES_FILE) ? json_decode(file_get_contents(WEEKLY_ARTICLES_FILE), true) : [];
+        if (json_last_error() !== JSON_ERROR_NONE) { $articles = []; } // JSONが壊れている場合は初期化
+        $articles[] = [
+            'title' => $latest_title,
+            'url' => $latest_url,
+            'summary' => $summary,
+            'tags' => $tags,
+            'source' => $message_label,
+            'date' => $latest_pubDate,
+        ];
+        file_put_contents(WEEKLY_ARTICLES_FILE, json_encode($articles, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        echo "[INFO] Saved article to weekly summary file.\n";
+        // --- ここまで ---
+
     } else {
         echo "[ERROR] Failed to send LINE notification for {$feed_name}. HTTP Status: {$http_code}\n";
         echo "[ERROR] Response: {$result}\n";

@@ -1,45 +1,66 @@
 name: Send LINE Notification
 
 on:
-  # 1時間ごとに自動実行 (UTC)
   schedule:
+    # 1時間ごとに実行 (UTC)
     - cron: '0 * * * *'
+    # 毎週日曜日の12:00 (UTC) に実行 (日本時間の21:00)
+    - cron: '0 12 * * 0'
   # 手動でも実行できるようにする
   workflow_dispatch:
 
 jobs:
+  # 毎時の記事チェックと通知ジョブ
   notify:
+    # cronが '0 * * * *' の場合、または手動実行の場合のみジョブを実行
+    if: github.event.schedule == '0 * * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-
-    # 自動コミットするために書き込み権限を付与
     permissions:
       contents: write
-
     steps:
-      # 1. リポジトリのコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      # 2. PHP環境をセットアップ
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: curl, mbstring, simplexml # 必要なPHP拡張
-
-      # 3. PHPスクリプトを実行
+          extensions: curl, mbstring, simplexml, json
       - name: Run PHP script
         env:
-          # GitHubのSecretsから認証情報を環境変数として渡す
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           SCRAPING_API_KEY: ${{ secrets.SCRAPING_API_KEY }}
         run: php run.php
-
-      # 4. last_notified_url.txtの変更を自動コミット
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'chore: Update last notified URL'
-          file_pattern: 'last_notified_url_*.txt'
+          commit_message: 'chore: Update last notified URL and weekly data'
+          file_pattern: 'last_notified_url_*.txt weekly_articles.json'
+
+  # 週間サマリーの送信ジョブ
+  send_summary:
+    # cronが '0 12 * * 0' の場合のみジョブを実行
+    if: github.event.schedule == '0 12 * * 0'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: curl, mbstring, simplexml, json
+      - name: Run weekly summary script
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: php send_weekly_summary.php
+      - name: Commit summary data cleanup
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: Cleanup weekly summary data'
+          file_pattern: 'weekly_articles.json'

@@ -95,6 +95,8 @@ foreach ($feeds as $feed) {
     $articleText = $articleContent['text'];
     $imageUrl = $articleContent['image_url'];
 
+    echo "[DEBUG] Image URL from fetchArticleContent: " . $imageUrl . "\n"; // デバッグログ追加
+
     $analysisResult = getAiAnalysis($articleText, $apiKey);
     $tags = $analysisResult['tags'];
     $summary = $analysisResult['summary'];
@@ -249,7 +251,11 @@ foreach ($feeds as $feed) {
         ],
     ];
 
-    if (!empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL) && strlen($imageUrl) <= 2000) {
+    echo "[DEBUG] Image URL before validation: " . $imageUrl . "\n"; // デバッグログ追加
+    $isImageUrlValid = !empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL) && strlen($imageUrl) <= 2000;
+    echo "[DEBUG] Image URL validation result: " . ($isImageUrlValid ? "true" : "false") . "\n"; // デバッグログ追加
+
+    if ($isImageUrlValid) {
         $bubble['hero'] = [
             'type' => 'image',
             'url' => $imageUrl,
@@ -257,6 +263,9 @@ foreach ($feeds as $feed) {
             'aspectRatio' => '20:13',
             'aspectMode' => 'cover',
         ];
+        echo "[DEBUG] Hero image added to bubble with URL: " . $imageUrl . "\n"; // デバッグログ追加
+    } else {
+        echo "[DEBUG] Hero image not added to bubble (validation failed or empty imageUrl).\n"; // デバッグログ追加
     }
 
     $altTextTags = !empty($tags) ? '[' . implode('][', $tags) . '] ' : '';
@@ -273,7 +282,7 @@ foreach ($feeds as $feed) {
             mkdir($dataDir, 0755, true);
         }
         file_put_contents($last_url_file, $latest_url);
-        echo "[INFO] Updated last notified URL to: {$latest_url}\n";
+        echo "[INFO] Updated last notified URL to: {" . $latest_url . "}\n";
 
         $articles = file_exists(WEEKLY_ARTICLES_FILE) ? json_decode(file_get_contents(WEEKLY_ARTICLES_FILE), true) : [];
         if (json_last_error() !== JSON_ERROR_NONE) { $articles = []; }

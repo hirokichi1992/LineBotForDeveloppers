@@ -25,13 +25,13 @@ jobs:
         with:
           php-version: '8.2'
           extensions: curl, mbstring, simplexml, json
-      - name: Run PHP script
+      - name: Run daily script
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           SCRAPING_API_KEY: ${{ secrets.SCRAPING_API_KEY }}
-        run: php src/run.php
+        run: php scripts/run_daily.php
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -58,7 +58,7 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-        run: php src/send_weekly_summary.php
+        run: php scripts/run_weekly.php
       - name: Commit summary data cleanup
         uses: stefanzweifel/git-auto-commit-action@v5
         with:

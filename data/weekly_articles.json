@@ -238,5 +238,41 @@
         "tags": [],
         "source": "Zenn トレンド記事",
         "date": "Wed, 17 Sep 2025 01:43:46 GMT"
+    },
+    {
+        "title": "Claude Code SDK ではじめる 定額 AI Agent 開発入門 | LayerX エンジニアブログ",
+        "url": "https:\/\/tech.layerx.co.jp\/entry\/claude-code-sdk-101",
+        "summary": "LayerXのエンジニアブログ記事では、Claude Code SDKを利用した定額制AI Agent開発について解説されています。APIの従量課金問題を解決し、月額固定料金でAI Agent開発を可能にします。Custom Tools定義やHooks機能の活用、タスク管理Agentの実装例を通じて、開発者が実務で応用できる具体的な手法を紹介しています。セキュリティを考慮したツール制御についても触れられています。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Wed, 17 Sep 2025 12:02:45 GMT"
+    },
+    {
+        "title": "【初心者完全版】0からReactを始めてCI\/CD構築までできるチュートリアル【TypeScript\/GitHubActions\/Vitest\/Firebase】",
+        "url": "https:\/\/qiita.com\/Sicut_study\/items\/9792f2f01dc887d4cb31?utm_campaign=popular_items&utm_medium=feed&utm_source=popular_items",
+        "summary": "ReactとTypeScriptを用いてTODOアプリを開発し、Vitestで自動テストを実装、Firebase HostingへのデプロイをGitHub Actionsで自動化するチュートリアル記事です。Webエンジニアは、CI\/CDパイプライン構築を通じて開発効率と品質を向上させ、モダンな開発手法を習得できます。自動テストによるバグ早期発見や、迅速なリリース・ロールバックは、顧客満足度向上にも貢献します。実務では、既存プロジェクトへのCI\/CD導入を検討し、開発フローの改善を目指しましょう。",
+        "tags": [
+            "Web開発",
+            "アプリ開発",
+            "プログラミング言語"
+        ],
+        "source": "Qiita トレンド",
+        "date": "2025-09-16T07:58:26+09:00"
+    },
+    {
+        "title": "De-risking investment in AI agents",
+        "url": "https:\/\/www.technologyreview.com\/2025\/09\/16\/1123592\/de-risking-investment-in-ai-agents\/",
+        "summary": "AIエージェント導入のリスク軽減について、NICEのNeeraj Verma氏が解説。顧客体験を向上させるAIエージェントは、計画・実行・適応能力を持つが、予測不能な応答やインフラへのアクセスなど課題も多い。透明性、安全性、倫理的リスクを管理しつつ、成果を重視した設計が重要。顧客体験自動化の進化に対応し、顧客の期待を超えるには、AIの応用が鍵となる。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "マネジメント"
+        ],
+        "source": "MIT Tech Review AI",
+        "date": "Tue, 16 Sep 2025 13:00:00 +0000"
     }
 ]

@@ -74,6 +74,8 @@ foreach ($feeds as $feed) {
         continue;
     }
 
+    echo "[DEBUG] Raw \$latest_item->link structure:\n" . print_r($latest_item->link, true) . "\n"; // デバッグログ追加
+
     $latest_url = '';
     // Atomフィードの場合、rel="alternate"のリンクを探す
     if (isset($latest_item->link) && is_array($latest_item->link)) {
@@ -86,8 +88,21 @@ foreach ($feeds as $feed) {
     }
     // RSSフィードの場合、またはAtomフィードでalternateリンクが見つからなかった場合
     if (empty($latest_url)) {
-        $latest_url = (string)($latest_item->link['href'] ?? $latest_item->link ?? $latest_item->guid);
+        // SimpleXMLElementオブジェクトのプロパティとしてlinkが存在する場合
+        if (isset($latest_item->link) && is_object($latest_item->link)) {
+            $latest_url = (string)$latest_item->link;
+        }
+        // linkが属性として存在する場合 (RSS 2.0の<item><link>タグ)
+        else if (isset($latest_item->link['href'])) {
+            $latest_url = (string)$latest_item->link['href'];
+        }
+        // guidタグをフォールバックとして使用
+        else if (isset($latest_item->guid)) {
+            $latest_url = (string)$latest_item->guid;
+        }
     }
+
+    echo "[DEBUG] Determined latest_url: " . $latest_url . "\n"; // デバッグログ追加
 
     $latest_title = (string)$latest_item->title;
     $latest_pubDate = (string)($latest_item->pubDate ?? $latest_item->updated);

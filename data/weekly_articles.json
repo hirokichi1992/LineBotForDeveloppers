@@ -334,5 +334,29 @@
         ],
         "source": "Publickey",
         "date": "2025-09-17T15:06:16Z"
+    },
+    {
+        "title": "PHP 8.5.0 Beta 3 available for testing",
+        "url": "https:\/\/www.php.net\/index.php#2025-09-11-1",
+        "summary": "PHPの最新動向として、8.5.0のベータ版テスト、8.3\/8.4系のバグ修正版リリース、そして過去バージョンのセキュリティアップデートがアナウンスされています。特に注目すべきは、PHPのソースコードに対するセキュリティ監査が実施され、複数の脆弱性が修正された点です。Webエンジニアは、常に最新版へのアップデートを検討し、セキュリティリスクを低減させるべきです。",
+        "tags": [
+            "Web開発",
+            "セキュリティ",
+            "プログラミング言語"
+        ],
+        "source": "PHP公式ニュース",
+        "date": "2025-09-11T17:59:49+00:00"
+    },
+    {
+        "title": "GitHub、総合的なMCPサーバのレジストリを目論む「GitHub MCP Registry」公開",
+        "url": "https:\/\/www.publickey1.jp\/blog\/25\/githubmcpgithub_mcp_registry.html",
+        "summary": "GitHubがMCPサーバのレジストリ「GitHub MCP Registry」を公開。MCPサーバは生成AIの能力を拡張するが、セキュリティリスクも伴う。Registryは厳選されたMCPサーバを提供し、信頼性を担保。今後はコミュニティベースの情報も統合し、健全なAIエコシステムを目指す。Webエンジニアは、AI連携におけるMCPサーバの選定とセキュリティ対策を考慮する必要がある。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "セキュリティ"
+        ],
+        "source": "Publickey",
+        "date": "2025-09-17T15:10:09Z"
     }
 ]

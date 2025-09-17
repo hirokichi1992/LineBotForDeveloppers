@@ -7,6 +7,24 @@ require_once __DIR__ . '/../src/lib.php';
 // Define root path for consistent file access
 define('ROOT_PATH', dirname(__DIR__));
 
+// Load .env file if it exists for local development
+$dotenv_path = ROOT_PATH . '/.env';
+if (file_exists($dotenv_path)) {
+    $lines = file($dotenv_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        if (preg_match('/^\s*([^=]+)\s*=\s*(.*?)?\s*$/', $line, $matches)) {
+            $name = $matches[1];
+            $value = $matches[2];
+            putenv(sprintf('%s=%s', $name, $value));
+            $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
+        }
+    }
+}
+
 // Load environment variables
 $channelAccessToken = getenv('LINE_CHANNEL_ACCESS_TOKEN');
 $userId = getenv('LINE_USER_ID');

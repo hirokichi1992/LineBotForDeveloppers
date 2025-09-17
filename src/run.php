@@ -603,6 +603,10 @@ foreach ($feeds as $feed) {
 
     if ($http_code == 200) {
         echo "[SUCCESS] Notification sent successfully for {$feed_name}.\n";
+        $dataDir = dirname($last_url_file);
+        if (!is_dir($dataDir)) {
+            mkdir($dataDir, 0755, true);
+        }
         file_put_contents($last_url_file, $latest_url);
         echo "[INFO] Updated last notified URL to: {$latest_url}\n";
 

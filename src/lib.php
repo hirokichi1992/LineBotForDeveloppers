@@ -134,15 +134,26 @@ Response: {$response}
 "; // デバッグログ追加
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        echo "[WARNING] Failed to parse AI analysis JSON response.
-Response: {$response}
-";
+        echo "[WARNING] Failed to parse AI analysis JSON response (initial decode). Raw response: {$response}\n";
         return $defaultResponse;
     }
 
+    // ここから追加・修正
+    $aiOutputText = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+    echo "[DEBUG] AI output text extracted: " . $aiOutputText . "\n";
+
+    $aiParsedOutput = json_decode($aiOutputText, true);
+    echo "[DEBUG] AI output text parsed as JSON:\n" . print_r($aiParsedOutput, true) . "\n";
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo "[WARNING] Failed to parse AI output text as JSON. Extracted text: {$aiOutputText}\n";
+        return $defaultResponse;
+    }
+    // ここまで追加・修正
+
     return [
-        'summary' => trim($result['summary'] ?? ''),
-        'tags' => $result['tags'] ?? [],
+        'summary' => trim($aiParsedOutput['summary'] ?? ''), // $result から $aiParsedOutput に変更
+        'tags' => $aiParsedOutput['tags'] ?? [],             // $result から $aiParsedOutput に変更
     ];
 }
 

@@ -16,9 +16,7 @@ if (!$channelAccessToken || !$userId || !$apiKey) {
     die("[ERROR] Environment variables LINE_CHANNEL_ACCESS_TOKEN, LINE_USER_ID, and AI_API_KEY must be set.\n");
 }
 
-// Define constants used in lib.php and this script
-define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
-define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
+
 define('WEEKLY_ARTICLES_FILE', ROOT_PATH . '/data/weekly_articles.json');
 
 // ----------------------------------------------------------------------------

@@ -21,10 +21,7 @@ if (!$channelAccessToken || !$userId) {
 // Load feed configuration
 $feeds = require ROOT_PATH . '/config/feeds.php';
 
-// Define constants used in lib.php
-define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
-define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
-define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
+
 define('WEEKLY_ARTICLES_FILE', ROOT_PATH . '/data/weekly_articles.json');
 
 // ----------------------------------------------------------------------------

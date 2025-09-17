@@ -77,29 +77,32 @@ foreach ($feeds as $feed) {
     echo "[DEBUG] Raw \$latest_item->link structure:\n" . print_r($latest_item->link, true) . "\n"; // デバッグログ追加
 
     $latest_url = '';
-    // Atomフィードの場合、rel="alternate"のリンクを探す
-    if (isset($latest_item->link) && is_array($latest_item->link)) {
-        foreach ($latest_item->link as $link) {
-            if (isset($link['rel']) && (string)$link['rel'] === 'alternate') {
-                $latest_url = (string)$link['href'];
-                break;
+    // Atomフィードのlinkタグを処理
+    if (isset($latest_item->link)) {
+        // linkが複数ある場合（Atomフィードでよくある）
+        if (is_array($latest_item->link) || ($latest_item->link instanceof SimpleXMLElement && count($latest_item->link) > 1)) {
+            foreach ($latest_item->link as $link) {
+                $attributes = $link->attributes();
+                if (isset($attributes['rel']) && (string)$attributes['rel'] === 'alternate' && isset($attributes['href'])) {
+                    $latest_url = (string)$attributes['href'];
+                    break;
+                }
+            }
+        }
+        // linkが単一の場合、またはRSSフィードのlinkタグ
+        if (empty($latest_url)) {
+            $attributes = $latest_item->link->attributes();
+            if (isset($attributes['href'])) { // 属性としてhrefがある場合
+                $latest_url = (string)$attributes['href'];
+            } else { // linkタグのテキストコンテンツがURLの場合
+                $latest_url = (string)$latest_item->link;
             }
         }
     }
-    // RSSフィードの場合、またはAtomフィードでalternateリンクが見つからなかった場合
-    if (empty($latest_url)) {
-        // SimpleXMLElementオブジェクトのプロパティとしてlinkが存在する場合
-        if (isset($latest_item->link) && is_object($latest_item->link)) {
-            $latest_url = (string)$latest_item->link;
-        }
-        // linkが属性として存在する場合 (RSS 2.0の<item><link>タグ)
-        else if (isset($latest_item->link['href'])) {
-            $latest_url = (string)$latest_item->link['href'];
-        }
-        // guidタグをフォールバックとして使用
-        else if (isset($latest_item->guid)) {
-            $latest_url = (string)$latest_item->guid;
-        }
+
+    // 最終的なフォールバックとしてguidを使用
+    if (empty($latest_url) && isset($latest_item->guid)) {
+        $latest_url = (string)$latest_item->guid;
     }
 
     echo "[DEBUG] Determined latest_url: " . $latest_url . "\n"; // デバッグログ追加

@@ -1,0 +1,1 @@
+https://freek.dev/2926-sql-performance-improvements-finding-the-right-queries-to-fix

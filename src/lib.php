@@ -3,7 +3,7 @@
 
 // APIのURLやその他の定数を定義
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
-define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
+define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-latest:generateContent');
 define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
 
 /**

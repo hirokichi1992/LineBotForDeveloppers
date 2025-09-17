@@ -58,14 +58,25 @@ return [
         'url' => 'https://jvndb.jvn.jp/ja/rss/jvndb.rdf',
         'label' => 'JVN 新着脆弱性情報'
     ],
-    [
-        'name' => 'wantedly_engineers',
-        'url' => 'https://us.wantedly.com/feed/s/wantedly_engineers/rss.xml',
-        'label' => 'Wantedly Engineer Blog'
-    ],
+    
     [
         'name' => 'codezine',
         'url' => 'https://codezine.jp/rss/new/20/index.xml',
         'label' => 'CodeZine'
+    ],
+    [
+        'name' => 'zenn_trends',
+        'url' => 'https://zenn.dev/feed',
+        'label' => 'Zenn トレンド記事'
+    ],
+    [
+        'name' => 'mit_ai',
+        'url' => 'https://technologyreview.com/topic/artificial-intelligence/feed/',
+        'label' => 'MIT Tech Review AI'
+    ],
+    [
+        'name' => 'ai_news',
+        'url' => 'https://artificialintelligence-news.com/feed/',
+        'label' => 'AI News'
     ],
 ];

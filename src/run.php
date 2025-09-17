@@ -264,6 +264,67 @@ function getAiCategories(string $text, string $apiKey): array {
 
 
 /**
+ * Gemini APIを呼び出して、記事の要約とカテゴリ分類を一度に行う
+ */
+function getAiAnalysis(string $text, string $apiKey): array {
+    $defaultResponse = ['tags' => [], 'summary' => ''];
+    if (empty($apiKey) || empty($text)) {
+        echo "[INFO] API key or article text is empty. Skipping AI analysis.\n";
+        return $defaultResponse;
+    }
+
+    $tagList = "セキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング, マネジメント, その他";
+    $prompt = "以下の記事を分析し、指定のJSON形式で出力してください。\n\n" 
+            . "制約:\n" 
+            . "- summary: 顧客向けにスクラッチ開発を行うWebエンジニアの視点で、実務に応用できる提案を含めて日本語で200字程度に要約してください。\n" 
+            . "- tags: 記事の内容に最も関連性の高いタグを、以下のリストから最大3つまで選んでください。\n" 
+            . "利用可能なタグ: {$tagList}\n\n" 
+            . "記事:\n" . mb_substr($text, 0, 15000) . "\n\n" 
+            . "出力形式 (JSONのみを返すこと):\n" 
+            . "{\n" 
+            . "  \"summary\": \"ここに要約が入ります。\",\n" 
+            . "  \"tags\": [\"タグ1\", \"タグ2\"]\n" 
+            . "}";
+
+    $data = [
+        'contents' => [['parts' => [['text' => $prompt]]]],
+        'generationConfig' => [
+            'maxOutputTokens' => 512,
+            'temperature' => 0.3,
+            'responseMimeType' => 'application/json', // Ask for JSON response directly
+        ]
+    ];
+
+    $ch = curl_init(GEMINI_API_URL . '?key=' . $apiKey);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code !== 200) {
+        echo "[WARNING] AI analysis request failed with HTTP Status: {$http_code}\nResponse: {$response}\n";
+        return $defaultResponse;
+    }
+
+    $result = json_decode($response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo "[WARNING] Failed to parse AI analysis JSON response.\nResponse: {$response}\n";
+        return $defaultResponse;
+    }
+
+    return [
+        'summary' => trim($result['summary'] ?? ''),
+        'tags' => $result['tags'] ?? [],
+    ];
+}
+
+
+/**
  * cURLを使ってRSSフィードの内容を堅牢に取得する
  */
 function fetchRssContent(string $url): string|false {
@@ -345,30 +406,30 @@ foreach ($feeds as $feed) {
     $articleText = $articleContent['text'];
     $imageUrl = $articleContent['image_url'];
 
-    // AIでカテゴリ分類
-    $tags = getAiCategories($articleText, $apiKey);
+    // AIで要約とカテゴリ分類を同時に行う
+    $analysisResult = getAiAnalysis($articleText, $apiKey);
+    $tags = $analysisResult['tags'];
+    $summary = $analysisResult['summary'];
+
     echo "[INFO] AI generated tags: " . implode(', ', $tags) . "\n";
 
-    $summary = '';
-    $aiSummary = getAiSummary($articleText, $apiKey);
-
-    if (!empty($aiSummary)) {
-        $summary = $aiSummary;
-        echo "[INFO] AI summary generated successfully.\n";
-    } else {
-        echo "[INFO] Falling back to description snippet for summary.\n";
+    // AIの要約が失敗した場合のフォールバック
+    if (empty($summary)) {
+        echo "[INFO] AI summary failed or was empty. Falling back to description snippet.\n";
         $description = strip_tags((string)($latest_item->description ?? $latest_item->summary));
         $summary = mb_substr($description, 0, 100);
         if (mb_strlen($description) > 100) {
             $summary .= '…';
         }
+        $summary = trim($summary);
+    } else {
+        echo "[INFO] AI summary generated successfully.\n";
     }
     // --- コンテンツ取得と要約ここまで ---
 
     // --- メッセージ本文の組み立て ---
     $bodyContents = [];
 
-    // タイトル
     $bodyContents[] = [
         'type' => 'text',
         'text' => $latest_title,
@@ -378,7 +439,6 @@ foreach ($feeds as $feed) {
         'color' => '#FFFFFF',
     ];
 
-    // タグがあれば追加
     if (!empty($tags)) {
         $tagItems = [];
         foreach ($tags as $tag) {
@@ -414,17 +474,17 @@ foreach ($feeds as $feed) {
         ];
     }
 
-    // 日付と要約を追加
-    $bodyContents = array_merge($bodyContents, [
-        [
-            'type' => 'text',
-            'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
-            'wrap' => true,
-            'size' => 'sm',
-            'color' => '#A0AEC0',
-            'margin' => 'lg',
-        ],
-        [
+    $bodyContents[] = [
+        'type' => 'text',
+        'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
+        'wrap' => true,
+        'size' => 'sm',
+        'color' => '#A0AEC0',
+        'margin' => 'lg',
+    ];
+
+    if (!empty($summary)) {
+        $bodyContents[] = [
             'type' => 'box',
             'layout' => 'vertical',
             'margin' => 'lg',
@@ -453,8 +513,8 @@ foreach ($feeds as $feed) {
                     'color' => '#E2E8F0',
                 ],
             ]
-        ]
-    ]);
+        ];
+    }
 
     $bubble = [
         'type' => 'bubble',
@@ -566,7 +626,7 @@ foreach ($feeds as $feed) {
         echo "[ERROR] Response: {$result}\n";
     }
     
-    sleep(1);
+    sleep(4);
 }
 
 echo "--------------------------------------------------\n";

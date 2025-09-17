@@ -71,6 +71,16 @@ $feeds = [
         'url' => 'https://jvndb.jvn.jp/ja/rss/jvndb.rdf',
         'label' => 'JVN 新着脆弱性情報'
     ],
+    [
+        'name' => 'itmedia_career',
+        'url' => 'https://rss.itmedia.co.jp/rss/2.0/itmedia_career.xml',
+        'label' => 'ITmedia キャリア'
+    ],
+    [
+        'name' => 'codezine',
+        'url' => 'https://codezine.jp/rss/new/20/index.xml',
+        'label' => 'CodeZine'
+    ],
 
 ];
 

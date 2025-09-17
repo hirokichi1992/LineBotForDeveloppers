@@ -66,6 +66,11 @@ $feeds = [
         'url' => 'https://www.ipa.go.jp/security/rss/alert.rdf',
         'label' => 'IPA 重要なセキュリティ情報'
     ],
+    [
+        'name' => 'jvn',
+        'url' => 'https://jvndb.jvn.jp/ja/rss/jvndb.rdf',
+        'label' => 'JVN 新着脆弱性情報'
+    ],
 
 ];
 
@@ -206,6 +211,57 @@ function getAiSummary(string $text, string $apiKey): string {
 
 
 /**
+ * Gemini APIを呼び出してカテゴリを分類する
+ */
+function getAiCategories(string $text, string $apiKey): array {
+    if (empty($apiKey)) {
+        echo "[INFO] AI_API_KEY is not set. Skipping AI categorization.\n";
+        return [];
+    }
+    if (empty($text)) {
+        echo "[INFO] Article text is empty. Skipping AI categorization.\n";
+        return [];
+    }
+
+    $prompt = "以下の記事は、ITエンジニアにとってどのようなカテゴリに分類されるか、指定されたタグの中から最も関連性の高いものを最大3つまで選び、カンマ区切りで出力してください。\n\n利用可能なタグ:\nセキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング, マネジメント, その他\n\n記事:\n" . mb_substr($text, 0, 8000) . "\n\n出力形式:\nタグ1,タグ2,タグ3";
+
+    $data = [
+        'contents' => [
+            ['parts' => [['text' => $prompt]]]
+        ],
+        'generationConfig' => [
+            'maxOutputTokens' => 64,
+            'temperature' => 0.1
+        ]
+    ];
+
+    $ch = curl_init(GEMINI_API_URL . '?key=' . $apiKey);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code === 200) {
+        $result = json_decode($response, true);
+        $category_string = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        if (!empty($category_string)) {
+            $tags = array_map('trim', explode(',', $category_string));
+            return array_filter($tags);
+        }
+    } else {
+        echo "[WARNING] AI categorization request failed with HTTP Status: {$http_code}\nResponse: {$response}\n";
+    }
+
+    return [];
+}
+
+
+/**
  * cURLを使ってRSSフィードの内容を堅牢に取得する
  */
 function fetchRssContent(string $url): string|false {
@@ -287,6 +343,10 @@ foreach ($feeds as $feed) {
     $articleText = $articleContent['text'];
     $imageUrl = $articleContent['image_url'];
 
+    // AIでカテゴリ分類
+    $tags = getAiCategories($articleText, $apiKey);
+    echo "[INFO] AI generated tags: " . implode(', ', $tags) . "\n";
+
     $summary = '';
     $aiSummary = getAiSummary($articleText, $apiKey);
 
@@ -303,6 +363,97 @@ foreach ($feeds as $feed) {
     }
     // --- コンテンツ取得と要約ここまで ---
 
+    // --- メッセージ本文の組み立て ---
+    $bodyContents = [];
+
+    // タイトル
+    $bodyContents[] = [
+        'type' => 'text',
+        'text' => $latest_title,
+        'weight' => 'bold',
+        'size' => 'xl',
+        'wrap' => true,
+        'color' => '#FFFFFF',
+    ];
+
+    // タグがあれば追加
+    if (!empty($tags)) {
+        $tagItems = [];
+        foreach ($tags as $tag) {
+            $tagItems[] = [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'backgroundColor' => '#4A5568',
+                'cornerRadius' => 'md',
+                'paddingAll' => '6px',
+                'contents' => [
+                    [
+                        'type' => 'text',
+                        'text' => $tag,
+                        'color' => '#FFFFFF',
+                        'size' => 'xs',
+                        'weight' => 'bold',
+                        'align' => 'center',
+                    ]
+                ],
+                'action' => [
+                    'type' => 'message',
+                    'label' => $tag,
+                    'text' => $tag . 'に関する記事'
+                ]
+            ];
+        }
+        $bodyContents[] = [
+            'type' => 'box',
+            'layout' => 'horizontal',
+            'contents' => $tagItems,
+            'spacing' => 'sm',
+            'margin' => 'lg',
+        ];
+    }
+
+    // 日付と要約を追加
+    $bodyContents = array_merge($bodyContents, [
+        [
+            'type' => 'text',
+            'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
+            'wrap' => true,
+            'size' => 'sm',
+            'color' => '#A0AEC0',
+            'margin' => 'lg',
+        ],
+        [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'margin' => 'lg',
+            'spacing' => 'sm',
+            'contents' => [
+                [
+                    'type' => 'box',
+                    'layout' => 'baseline',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => 'Summary',
+                            'color' => '#A0AEC0',
+                            'size' => 'sm',
+                            'flex' => 0
+                        ],
+                    ]
+                ],
+                [
+                    'type' => 'text',
+                    'text' => $summary,
+                    'wrap' => true,
+                    'size' => 'sm',
+                    'margin' => 'md',
+                    'color' => '#E2E8F0',
+                ],
+            ]
+        ]
+    ]);
+
     $bubble = [
         'type' => 'bubble',
         'styles' => [
@@ -316,7 +467,7 @@ foreach ($feeds as $feed) {
             'contents' => [
                 [
                     'type' => 'text',
-                    'text' => sprintf('[ SOURCE: %s ]', $message_label),
+                    'text' => sprintf('[ %s ]', $message_label),
                     'weight' => 'bold',
                     'color' => '#1DB446',
                     'size' => 'sm',
@@ -328,54 +479,7 @@ foreach ($feeds as $feed) {
             'type' => 'box',
             'layout' => 'vertical',
             'spacing' => 'md',
-            'contents' => [
-                [
-                    'type' => 'text',
-                    'text' => 'TITLE',
-                    'size' => 'xs',
-                    'color' => '#A0AEC0',
-                    'wrap' => true,
-                ],
-                [
-                    'type' => 'text',
-                    'text' => $latest_title,
-                    'weight' => 'bold',
-                    'size' => 'xl',
-                    'wrap' => true,
-                    'color' => '#FFFFFF',
-                ],
-                [
-                    'type' => 'text',
-                    'text' => 'DATE',
-                    'size' => 'xs',
-                    'color' => '#A0AEC0',
-                    'wrap' => true,
-                    'margin' => 'lg',
-                ],
-                [
-                    'type' => 'text',
-                    'text' => date('Y/m/d H:i', strtotime($latest_pubDate)),
-                    'wrap' => true,
-                    'size' => 'sm',
-                    'color' => '#E2E8F0',
-                ],
-                [
-                    'type' => 'text',
-                    'text' => 'SUMMARY',
-                    'size' => 'xs',
-                    'color' => '#A0AEC0',
-                    'wrap' => true,
-                    'margin' => 'lg',
-                ],
-                [
-                    'type' => 'text',
-                    'text' => $summary,
-                    'wrap' => true,
-                    'size' => 'sm',
-                    'margin' => 'md',
-                    'color' => '#E2E8F0',
-                ],
-            ],
+            'contents' => $bodyContents,
         ],
         'footer' => [
             'type' => 'box',
@@ -409,9 +513,11 @@ foreach ($feeds as $feed) {
         ];
     }
 
+    // タグをaltTextに追加
+    $altTextTags = !empty($tags) ? '[' . implode('][', $tags) . '] ' : '';
     $flexMessage = [
         'type' => 'flex',
-        'altText' => sprintf('【%s】%s', $message_label, $latest_title),
+        'altText' => sprintf('%s【%s】%s', $altTextTags, $message_label, $latest_title),
         'contents' => $bubble,
     ];
 

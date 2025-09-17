@@ -1,1 +1,1 @@
-https://css-tricks.com/the-most-hated-css-feature-cos-and-sin/
+https://css-tricks.com/is-it-time-to-un-sass/

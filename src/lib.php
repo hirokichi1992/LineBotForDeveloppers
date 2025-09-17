@@ -62,17 +62,35 @@ function getAiAnalysis(string $text, string $apiKey): array {
     }
 
     $tagList = "セキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング, マネジメント, その他";
-    $prompt = "以下の記事を分析し、指定のJSON形式で出力してください。\n\n" 
-            . "制約:\n" 
-            . "- summary: 顧客向けにスクラッチ開発を行うWebエンジニアの視点で、実務に応用できる提案を含めて日本語で200字程度に要約してください。\n" 
-            . "- tags: 記事の内容に最も関連性の高いタグを、以下のリストから最大3つまで選んでください。\n" 
-            . "利用可能なタグ: {$tagList}\n\n" 
-            . "記事:\n" . mb_substr($text, 0, 15000) . "\n\n" 
-            . "出力形式 (JSONのみを返すこと):\n" 
-            . "{\n" 
-            . "  \"summary\": \"ここに要約が入ります。\",\n" 
-            . "  \"tags\": [\"タグ1\", \"タグ2\"]\n" 
+    $prompt = "以下の記事を分析し、指定のJSON形式で出力してください。
+
+" 
+            . "制約:
+" 
+            . "- summary: 顧客向けにスクラッチ開発を行うWebエンジニアの視点で、実務に応用できる提案を含めて日本語で200字程度に要約してください。
+" 
+            . "- tags: 記事の内容に最も関連性の高いタグを、以下のリストから最大3つまで選んでください。
+" 
+            . "利用可能なタグ: {$tagList}
+
+" 
+            . "記事:
+" . mb_substr($text, 0, 15000) . "
+
+" 
+            . "出力形式 (JSONのみを返すこと):
+" 
+            . "{
+" 
+            . "  \"summary\": \"ここに要約が入ります。\",
+" 
+            . "  \"tags\": [\"タグ1\", \"タグ2\"]
+" 
             . "}";
+
+    echo "[DEBUG] Prompt sent to Gemini API:
+" . $prompt . "
+"; // デバッグログ追加
 
     $data = [
         'contents' => [['parts' => [['text' => $prompt]]]],
@@ -83,9 +101,14 @@ function getAiAnalysis(string $text, string $apiKey): array {
         ]
     ];
 
+    $postFields = json_encode($data);
+    echo "[DEBUG] Data sent to Gemini API:
+" . $postFields . "
+"; // デバッグログ追加
+
     $ch = curl_init(GEMINI_API_URL . '?key=' . $apiKey);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -94,14 +117,26 @@ function getAiAnalysis(string $text, string $apiKey): array {
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
+    echo "[DEBUG] Raw response from Gemini API:
+" . $response . "
+"; // デバッグログ追加
+
     if ($http_code !== 200) {
-        echo "[WARNING] AI analysis request failed with HTTP Status: {$http_code}\nResponse: {$response}\n";
+        echo "[WARNING] AI analysis request failed with HTTP Status: {$http_code}
+Response: {$response}
+";
         return $defaultResponse;
     }
 
     $result = json_decode($response, true);
+    echo "[DEBUG] Decoded response from Gemini API:
+" . print_r($result, true) . "
+"; // デバッグログ追加
+
     if (json_last_error() !== JSON_ERROR_NONE) {
-        echo "[WARNING] Failed to parse AI analysis JSON response.\nResponse: {$response}\n";
+        echo "[WARNING] Failed to parse AI analysis JSON response.
+Response: {$response}
+";
         return $defaultResponse;
     }
 
@@ -110,6 +145,7 @@ function getAiAnalysis(string $text, string $apiKey): array {
         'tags' => $result['tags'] ?? [],
     ];
 }
+
 
 /**
  * cURLを使ってRSSフィードの内容を堅牢に取得する

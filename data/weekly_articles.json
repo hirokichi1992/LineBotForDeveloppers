@@ -334,5 +334,261 @@
         ],
         "source": "Publickey",
         "date": "2025-09-17T15:06:16Z"
+    },
+    {
+        "title": "PHP 8.5.0 Beta 3 available for testing",
+        "url": "https:\/\/www.php.net\/index.php#2025-09-11-1",
+        "summary": "PHPの最新動向として、8.5.0のベータ版テスト、8.3\/8.4系のバグ修正版リリース、そして過去バージョンのセキュリティアップデートがアナウンスされています。特に注目すべきは、PHPのソースコードに対するセキュリティ監査が実施され、複数の脆弱性が修正された点です。Webエンジニアは、常に最新版へのアップデートを検討し、セキュリティリスクを低減させるべきです。",
+        "tags": [
+            "Web開発",
+            "セキュリティ",
+            "プログラミング言語"
+        ],
+        "source": "PHP公式ニュース",
+        "date": "2025-09-11T17:59:49+00:00"
+    },
+    {
+        "title": "GitHub、総合的なMCPサーバのレジストリを目論む「GitHub MCP Registry」公開",
+        "url": "https:\/\/www.publickey1.jp\/blog\/25\/githubmcpgithub_mcp_registry.html",
+        "summary": "GitHubがMCPサーバのレジストリ「GitHub MCP Registry」を公開。MCPサーバは生成AIの能力を拡張するが、セキュリティリスクも伴う。Registryは厳選されたMCPサーバを提供し、信頼性を担保。今後はコミュニティベースの情報も統合し、健全なAIエコシステムを目指す。Webエンジニアは、AI連携におけるMCPサーバの選定とセキュリティ対策を考慮する必要がある。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "セキュリティ"
+        ],
+        "source": "Publickey",
+        "date": "2025-09-17T15:10:09Z"
+    },
+    {
+        "title": "Chinese TA415 Uses VS Code Remote Tunnels to Spy on U.S. Economic Policy Experts",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/chinese-ta415-uses-vs-code-remote.html",
+        "summary": "中国の脅威アクターTA415が、米中経済政策の専門家を標的としたスピアフィッシング攻撃にVS Code Remote Tunnelsを使用。偽装メールでマルウェアを配布し、システム情報を窃取。類似攻撃は過去にも確認されており、Webエンジニアは、VS Codeのセキュリティ設定を見直し、不審なリモート接続を監視する必要がある。多要素認証の導入や、エンドポイントセキュリティの強化も有効。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "サイバー攻撃"
+        ],
+        "source": "The Hacker News",
+        "date": "Wed, 17 Sep 2025 18:26:00 +0530"
+    },
+    {
+        "title": "TA558 Uses AI-Generated Scripts to Deploy Venom RAT in Brazil Hotel Attacks",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/ta558-uses-ai-generated-scripts-to.html",
+        "summary": "TA558と呼ばれる攻撃者が、ブラジルのホテルを標的にVenom RATを配布する際に、AIが生成したスクリプトを使用していることが報告されました。攻撃はフィッシングメールを介して行われ、AIによって生成されたJavaScriptローダーとPowerShellダウンローダーを利用しています。Webエンジニアは、AIが悪用されるリスクを認識し、セキュリティ対策を強化する必要があります。",
+        "tags": [
+            "セキュリティ",
+            "AI",
+            "Web開発"
+        ],
+        "source": "The Hacker News",
+        "date": "Thu, 18 Sep 2025 00:00:00 +0530"
+    },
+    {
+        "title": "エンジニアコミュニティORION×シナジーマーケティング共催「実運用での失敗と学びについて」LT会レポート | TECHSCORE BLOG",
+        "url": "https:\/\/blog.techscore.com\/entry\/2025\/09\/18\/080000",
+        "summary": "エンジニアコミュニティORIONとシナジーマーケティング共催のLT会では、DB障害、オフショア開発、シークレットキー流出、電話対応など、実運用での失敗事例とその学びが共有されました。ログの重要性、コミュニケーションの工夫、安全な権限管理、顧客視点の重要性が強調され、失敗を成長の糧とするコミュニティの価値が示唆されました。顧客向けのシステム開発では、これらの教訓を活かし、より堅牢でユーザーフレンドリーなシステム構築を目指すべきです。",
+        "tags": [
+            "Web開発",
+            "セキュリティ",
+            "インフラ"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Wed, 17 Sep 2025 23:00:00 GMT"
+    },
+    {
+        "title": "Intuneを使用してWindows11のスタートメニューレイアウトを展開する | JBS Tech Blog",
+        "url": "https:\/\/blog.jbs.co.jp\/entry\/2025\/09\/18\/090211",
+        "summary": "Intuneを利用したWindows 11のスタートメニューレイアウト展開について解説。XML形式からJSON形式への変更に対応し、構成プロファイルの作成手順や適用状況の確認方法を説明します。利用者による編集の可否設定にも触れ、組織全体での統一されたレイアウト管理の実現を支援します。段階的な適用と優先順位付けの重要性を強調し、ガバナンス統制の観点からも実務的な提案を行います。",
+        "tags": [
+            "Intune",
+            "Web開発",
+            "マネジメント"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 00:02:11 GMT"
+    },
+    {
+        "title": "「クラウドでIDEを動かしたかっただけなのに」AWSで22万円のクラウド破産した話",
+        "url": "https:\/\/zenn.dev\/eightbeat\/articles\/ca6ce3d06c0265",
+        "summary": "AWSでクラウドIDEを構築した際、削除したはずのEC2インスタンスがKubernetesによって自動的に復活し、高額請求が発生した事例。CloudFormationのスタック削除時の注意点と、予算アラート設定の重要性を解説。Webエンジニアは、構築したリソースの関連性を理解し、予算管理を徹底することで同様の事故を防げる。",
+        "tags": [
+            "Web開発",
+            "クラウド",
+            "インフラ"
+        ],
+        "source": "Zenn トレンド記事",
+        "date": "Wed, 17 Sep 2025 15:03:09 GMT"
+    },
+    {
+        "title": "社内リモートハッカソンレポート！！ | WonderPlanet Developers’ Blog",
+        "url": "https:\/\/developers.wonderpla.net\/entry\/2025\/09\/18\/100050",
+        "summary": "WonderPlanet社内でのリモートハッカソンのレポート。参加ハードルを下げるため、制作期間を約1週間に設定し、各自の都合の良い時間に開発を進められる形式を導入。AI関連テーマが多かった。課題として、オンラインでのコミュニケーション不足とテーマの広すぎを挙げ、今後の改善点とした。顧客向けWeb開発では、開発者が興味のある技術を試せるハッカソン形式の研修を取り入れ、技術力向上を図ることが考えられる。",
+        "tags": [
+            "Web開発",
+            "アプリ開発",
+            "AI"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 01:00:50 GMT"
+    },
+    {
+        "title": "ヘッドウォータースの資格手当制度について | ヘッドウォータースのフィード",
+        "url": "https:\/\/zenn.dev\/headwaters\/articles\/e952218a91f54c",
+        "summary": "ヘッドウォータースの資格手当制度は、社員のスキルアップとモチベーション向上を目的とし、Azure関連資格を中心にデータやGitHub関連の資格取得を推奨しています。Webエンジニア視点では、資格取得によるスキル向上は顧客への提案力強化に繋がり、実務での問題解決能力を高めるでしょう。資格取得支援制度を積極的に活用し、自己成長と顧客価値の向上を目指しましょう。",
+        "tags": [
+            "Web開発",
+            "キャリア",
+            "マネジメント"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 03:00:01 GMT"
+    },
+    {
+        "title": "mlc-ai の XGrammar における制限またはスロットリング無しのリソースの割り当てに関する脆弱性",
+        "url": "https:\/\/jvndb.jvn.jp\/ja\/contents\/2025\/JVNDB-2025-014067.html",
+        "summary": "mlc-ai の XGrammar には、制限またはスロットリング無しのリソースの割り当てに関する脆弱性が存在します。",
+        "tags": [],
+        "source": "JVN 新着脆弱性情報",
+        "date": ""
+    },
+    {
+        "title": "GitHub CopilotのAgentモードとローカルLLMを試してみよう",
+        "url": "http:\/\/codezine.jp\/article\/detail\/22217",
+        "summary": "VSCodeとGitHub CopilotのAgentモード、ローカルLLMの利用について解説。Agentモードで開発プロセスを自動化し、ローカルLLMを導入することで、AIによるコーディング支援を強化。顧客向けWeb開発では、モックアップからのコード生成やレビューに活用でき、開発効率向上が期待できる。特に、AIによるターミナルコマンドの自動承認は、開発速度を大幅に改善する可能性を秘めている。",
+        "tags": [
+            "Web開発",
+            "AI",
+            "プログラミング言語"
+        ],
+        "source": "CodeZine",
+        "date": "Thu, 18 Sep 2025 11:00:00 +0900"
+    },
+    {
+        "title": "エンジニア0人の組織から始めた、利用者800万人のシステム刷新──マルイユナイトが仕掛ける変革",
+        "url": "http:\/\/codezine.jp\/article\/detail\/21976",
+        "summary": "マルイグループが設立したテックカンパニー、マルイユナイトのシステム刷新の取り組みを紹介。レガシーシステム、組織の肥大化、ベンダー依存という課題に対し、内製組織の構築、AI駆動開発、モノリスからの脱却を目指す。顧客起点のデジタル体験を支えるアジャイルな開発体制への変革は、スクラッチ開発の内製化を検討する企業にとって参考になる。",
+        "tags": [
+            "Web開発",
+            "マネジメント",
+            "AI"
+        ],
+        "source": "CodeZine",
+        "date": "Thu, 18 Sep 2025 12:00:00 +0900"
+    },
+    {
+        "title": "実践的なDevin活用ガイド：セッションでの効果的な指示方法や注意点 | レスキューナウテックブログのフィード",
+        "url": "https:\/\/zenn.dev\/rescuenow\/articles\/17a8de70aae807",
+        "summary": "Devinを実プロジェクトで活用する際の指示方法や連携システム構築について解説。セッション管理、リソース選択、ファイル添付、リポジトリ設定等の基本操作から、プロンプト改善、Slack連携、セッションインサイト等の応用まで網羅。タスク分割、具体的指示、ドキュメント整備の重要性を強調し、コードレビューの必要性も指摘。Devinの能力を最大限に引き出すための実践的なガイド。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 04:57:02 GMT"
+    },
+    {
+        "title": "CUDA無し環境でPyTorchでGPUを使用する手軽な方法",
+        "url": "https:\/\/zenn.dev\/karaage0703\/articles\/48bcb55002c360",
+        "summary": "CUDA未インストールの環境でも、pipやuvでPyTorchをインストールするだけでGPUが利用可能になるという記事です。以前はCUDAとPyTorchのバージョン管理が煩雑でしたが、現在ではPyTorchにCUDAランタイムライブラリが同梱されているため、容易にGPUを利用できます。Webエンジニアは、この手軽さを利用して、深層学習のプロトタイプ開発などを迅速に進めることができます。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "Zenn トレンド記事",
+        "date": "Wed, 17 Sep 2025 16:06:54 GMT"
+    },
+    {
+        "title": "セキュリティ月間から7ヶ月程経ったので改めてセキュリティについて考えてみた | iimon TECH BLOG",
+        "url": "https:\/\/tech.iimon.co.jp\/entry\/2025\/09\/18\/152814",
+        "summary": "Webエンジニア向けに、Webアプリケーションのセキュリティ対策の重要性を解説。XSS, CSRF, クリックジャッキング, オープンリダイレクトといった攻撃手法と対策を具体的に説明し、フロントエンド実装における注意点を指摘。Reactの`dangerouslySetInnerHTML`の危険性や、HTTPヘッダ設定の重要性など、実務で役立つ知識を提供。セキュリティは継続的な学習が不可欠であると強調。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 06:28:14 GMT"
+    },
+    {
+        "title": "Google Patches Chrome Zero-Day CVE-2025-10585 as Active V8 Exploit Threatens Millions",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/google-patches-chrome-zero-day-cve-2025.html",
+        "summary": "Google Chromeのゼロデイ脆弱性CVE-2025-10585が発見され、V8エンジンにおける型混乱の問題が悪用されています。攻撃者はこの脆弱性を利用して任意コード実行やプログラムクラッシュを引き起こす可能性があります。Chromeのバージョン140.0.7339.185\/.186 (Windows\/macOS) および 140.0.7339.185 (Linux) へのアップデートが推奨されます。顧客向けのWebアプリケーション開発においては、利用するブラウザのセキュリティアップデートを迅速に適用し、V8エンジン等の脆弱性情報を常に監視することが重要です。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "The Hacker News",
+        "date": "Thu, 18 Sep 2025 11:19:00 +0530"
+    },
+    {
+        "title": "UNIVERGE IX\/IX-R\/IX-Vシリーズルータにおけるクロスサイトスクリプティングの脆弱性",
+        "url": "https:\/\/jvndb.jvn.jp\/ja\/contents\/2025\/JVNDB-2025-000079.html",
+        "summary": "日本電気株式会社が提供するUNIVERGE IX\/IX-R\/IX-Vシリーズルータには、次の脆弱性が存在します。\r\nクロスサイトスクリプティング（CWE-79）- CVE-2025-8153\r\nこの脆…",
+        "tags": [],
+        "source": "JVN 新着脆弱性情報",
+        "date": ""
+    },
+    {
+        "title": "Amazon EC2 M4およびM4 Pro Macインスタンスが一般提供開始",
+        "url": "http:\/\/codezine.jp\/article\/detail\/22259",
+        "summary": "AWSがEC2 M4\/M4 Pro Macインスタンスの一般提供を開始。iOS\/macOSアプリのビルド・テストに最適化され、M2世代と比較して最大20%の性能向上を実現。特にM4 Proはより高性能。AWSコンソール等から起動可能で、現在は米国の一部リージョンで提供、今後拡大予定。Webエンジニアは、これらのインスタンスを活用し、開発効率の向上や高速なCI\/CDパイプラインの構築を検討できる。",
+        "tags": [
+            "Web開発",
+            "クラウド",
+            "アプリ開発"
+        ],
+        "source": "CodeZine",
+        "date": "Thu, 18 Sep 2025 16:00:00 +0900"
+    },
+    {
+        "title": "Rails:繰り返しイベントの日付や期間を自然言語で指定できるパーサーをStimulusで実装する（翻訳） | TechRacho",
+        "url": "https:\/\/techracho.bpsinc.jp\/hachi8833\/2025_09_18\/151718",
+        "summary": "Railsで繰り返しイベントを自然言語で指定できるパーサーをStimulusで実装する記事です。ユーザーが「毎週」や「毎月15日」のように自然な言葉で繰り返しイベントを設定できるようにします。正規表現を用いて入力を解析し、IceCubeなどのバックエンドで利用できる形式に変換。Webエンジニアは、この実装を参考に、より柔軟なイベント設定UIを顧客に提供できます。",
+        "tags": [
+            "Web開発",
+            "プログラミング言語",
+            "Ruby on Rails"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 08:30:28 GMT"
+    },
+    {
+        "title": "複雑な歯科電子レセプトを可視化するWebビューアを作ってみた | MEDLEY Developer Portal",
+        "url": "https:\/\/developer.medley.jp\/entry\/2025\/09\/18\/184343",
+        "summary": "歯科電子レセプトの可視化Webビューア開発を通じて、レセプトの構造とデータ取得を効率化。CSVパース処理、厚生労働省公開のマスターファイル参照、indexedDBへの展開で高速化。開発支援ツール活用で実装効率向上。医療ITへの関心を喚起し、業務理解を深める。顧客向けには、レセプトデータに基づいた診療分析や、データ連携による業務効率化を提案可能。",
+        "tags": [
+            "Web開発",
+            "アプリ開発",
+            "その他"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 09:43:43 GMT"
+    },
+    {
+        "title": "IBM、日本企業向けAI共創拠点「IBM AI Lab Japan」を2025年10月開設",
+        "url": "http:\/\/codezine.jp\/article\/detail\/22265",
+        "summary": "IBMが日本企業向けAI共創拠点「IBM AI Lab Japan」を2025年10月に開設。フルスタックAIの活用を支援し、業務アプリ、ソフトウェア、クラウド基盤、AIチップ等の開発・実装を推進。国内の信頼性や規制に対応し、産業競争力強化とソブリンAI確立を目指す。Webエンジニアは、この拠点の動向を注視し、自社の開発戦略や技術選定に役立てることで、AI技術の導入を加速できる。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "クラウド"
+        ],
+        "source": "CodeZine",
+        "date": "Thu, 18 Sep 2025 18:00:00 +0900"
+    },
+    {
+        "title": "DroidKaigi 2025 参加レポート - Supporter Sponsor として協賛しました！ | MEDLEY Developer Portal",
+        "url": "https:\/\/developer.medley.jp\/entry\/2025\/09\/18\/200000",
+        "summary": "DroidKaigi 2025の参加レポート。Kotlin MultiplatformやCompose Multiplatformを用いたクロスプラットフォーム開発、スマホ新法がアプリビジネスに与える影響、オフラインファーストなFlutterアプリ設計について紹介。顧客向けスクラッチ開発では、KMP\/CMPによる効率化とネイティブUIの使い分け、オフライン対応を考慮した設計が重要となる。",
+        "tags": [
+            "Web開発",
+            "アプリ開発",
+            "プログラミング言語"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 11:00:00 GMT"
     }
 ]

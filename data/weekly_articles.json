@@ -634,5 +634,17 @@
         ],
         "source": "Zenn トレンド記事",
         "date": "Wed, 17 Sep 2025 23:35:58 GMT"
+    },
+    {
+        "title": "CountLoader Broadens Russian Ransomware Operations With Multi-Version Malware Loader",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/countloader-broadens-russian-ransomware.html",
+        "summary": "ロシアのランサムウェアグループが使用する新しいマルウェアローダーCountLoaderが発見された。これはCobalt StrikeやAdaptixC2などの攻撃ツールや、PureHVNC RATを配布するために使用される。CountLoaderには.NET, PowerShell, JavaScriptの3つのバージョンがあり、ウクライナの個人を標的としたフィッシング攻撃で確認されている。高度なWindowsの知識を利用し、正規ツールを悪用して活動を隠蔽する。",
+        "tags": [
+            "サイバーセキュリティ",
+            "マルウェア",
+            "ランサムウェア"
+        ],
+        "source": "The Hacker News",
+        "date": "Thu, 18 Sep 2025 18:26:00 +0530"
     }
 ]

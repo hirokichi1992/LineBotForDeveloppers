@@ -658,5 +658,41 @@
         ],
         "source": "企業テックブログ新着記事",
         "date": "Thu, 18 Sep 2025 12:36:56 GMT"
+    },
+    {
+        "title": "Microsoft 365 Copilot 宣言型エージェントから App Service へのネットワーク構成 | ヘッドウォータースのフィード",
+        "url": "https:\/\/zenn.dev\/headwaters\/articles\/8b3c12ae61dd17",
+        "summary": "Microsoft 365 Copilotの宣言型エージェントからApp Service上のFastAPI実行に関するネットワーク設定の検証記事。App ServiceのIP制限でAzure側のIPが固定できないため、ServiceTagを利用する解決策を提示。エンジニアの多様性を歓迎するヘッドウォータース社の採用コンセプトも紹介。",
+        "tags": [
+            "Web開発",
+            "クラウド",
+            "AI"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 14:11:32 GMT"
+    },
+    {
+        "title": "「WebAssembly 3.0」正式仕様が完成。16エクサバイトのメモリ空間に拡張、ガベージコレクション、テールコール、例外処理など",
+        "url": "https:\/\/www.publickey1.jp\/blog\/25\/webassembly_3016.html",
+        "summary": "WebAssembly 3.0正式版が公開。アドレス空間が16エクサバイトに拡張され、サーバサイドでの大規模アプリケーションに対応可能になった。ガベージコレクション、複数メモリ空間、型付き参照、テールコール、例外ハンドリングなどの機能が追加され、Javaなどの言語の移植が容易になる。Webエンジニアは、これらの新機能を活用し、より効率的で安全なWebアプリケーション開発を検討できる。",
+        "tags": [
+            "Web開発",
+            "プログラミング言語",
+            "Web標準"
+        ],
+        "source": "Publickey",
+        "date": "2025-09-18T14:48:15Z"
+    },
+    {
+        "title": "SonicWall Urges Password Resets After Cloud Backup Breach Affecting Under 5% of Customers",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/sonicwall-urges-password-resets-after.html",
+        "summary": "SonicWallが、クラウドバックアップサービスへの不正アクセスを受け、顧客の5%未満に影響が出たことを発表。影響を受けた顧客に対し、パスワードのリセットを推奨しています。暗号化されたファイルが攻撃者に悪用される可能性があり、WANからのアクセス制限、HTTP\/HTTPS\/SSH管理の停止、VPNの無効化などの対策を促しています。AkiraランサムウェアグループによるSonicWall VPNの脆弱性悪用も報告されており、注意が必要です。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "クラウド"
+        ],
+        "source": "The Hacker News",
+        "date": "Thu, 18 Sep 2025 19:42:00 +0530"
     }
 ]

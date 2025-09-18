@@ -74,12 +74,8 @@ foreach ($feeds as $feed) {
         continue;
     }
 
-    echo "[DEBUG] Raw \$latest_item->link structure:\n" . print_r($latest_item->link, true) . "\n"; // デバッグログ追加
-
     $latest_url = '';
-    // Atomフィードのlinkタグを処理
     if (isset($latest_item->link)) {
-        // linkが複数ある場合（Atomフィードでよくある）
         if (is_array($latest_item->link) || ($latest_item->link instanceof SimpleXMLElement && count($latest_item->link) > 1)) {
             foreach ($latest_item->link as $link) {
                 $attributes = $link->attributes();
@@ -89,23 +85,19 @@ foreach ($feeds as $feed) {
                 }
             }
         }
-        // linkが単一の場合、またはRSSフィードのlinkタグ
         if (empty($latest_url)) {
             $attributes = $latest_item->link->attributes();
-            if (isset($attributes['href'])) { // 属性としてhrefがある場合
+            if (isset($attributes['href'])) {
                 $latest_url = (string)$attributes['href'];
-            } else { // linkタグのテキストコンテンツがURLの場合
+            } else {
                 $latest_url = (string)$latest_item->link;
             }
         }
     }
 
-    // 最終的なフォールバックとしてguidを使用
     if (empty($latest_url) && isset($latest_item->guid)) {
         $latest_url = (string)$latest_item->guid;
     }
-
-    echo "[DEBUG] Determined latest_url: " . $latest_url . "\n"; // デバッグログ追加
 
     $latest_title = (string)$latest_item->title;
     $latest_pubDate = (string)($latest_item->pubDate ?? $latest_item->updated);
@@ -127,13 +119,9 @@ foreach ($feeds as $feed) {
     $articleText = $articleContent['text'];
     $imageUrl = $articleContent['image_url'];
 
-    echo "[DEBUG] Image URL from fetchArticleContent: " . $imageUrl . "\n"; // デバッグログ追加
-
     $analysisResult = getAiAnalysis($articleText, $apiKey);
     $tags = $analysisResult['tags'];
     $summary = $analysisResult['summary'];
-
-    echo "[INFO] AI generated tags: " . implode(', ', $tags) . "\n";
 
     if (empty($summary)) {
         echo "[INFO] AI summary failed or was empty. Falling back to description snippet.\n";
@@ -145,6 +133,13 @@ foreach ($feeds as $feed) {
         $summary = trim($summary);
     } else {
         echo "[INFO] AI summary generated successfully.\n";
+    }
+
+    // --- Generate Quiz ---
+    $quizData = null;
+    if (!empty($articleText) && !empty($apiKey)) {
+        echo "[INFO] Attempting to generate a quiz...\n";
+        $quizData = generateQuizFromArticle($articleText, $apiKey);
     }
 
     // --- Build Flex Message ---
@@ -235,6 +230,61 @@ foreach ($feeds as $feed) {
         ];
     }
 
+    // --- Add Quiz to Flex Message ---
+    if ($quizData && isset($quizData['question']) && isset($quizData['options']) && count($quizData['options']) === 3 && isset($quizData['correct_index'])) {
+        echo "[INFO] Adding quiz to the message.\n";
+
+        $bodyContents[] = ['type' => 'separator', 'margin' => 'xl'];
+        $bodyContents[] = [
+            'type' => 'text',
+            'text' => '今日のテッククイズ💡',
+            'weight' => 'bold',
+            'size' => 'md',
+            'margin' => 'lg',
+            'color' => '#1DB446'
+        ];
+        $bodyContents[] = [
+            'type' => 'text',
+            'text' => $quizData['question'],
+            'wrap' => true,
+            'size' => 'sm',
+            'color' => '#E2E8F0',
+            'margin' => 'md'
+        ];
+
+        $quizOptions = [];
+        foreach ($quizData['options'] as $index => $option) {
+            $isCorrect = ($index === $quizData['correct_index']);
+            $postbackData = http_build_query([
+                'action' => 'quiz_answer',
+                'is_correct' => $isCorrect ? '1' : '0',
+                'correct_answer' => $quizData['options'][$quizData['correct_index']]
+            ]);
+
+            $quizOptions[] = [
+                'type' => 'button',
+                'action' => [
+                    'type' => 'postback',
+                    'label' => $option,
+                    'data' => $postbackData,
+                    'displayText' => $option
+                ],
+                'style' => 'secondary',
+                'height' => 'sm',
+                'margin' => 'sm'
+            ];
+        }
+        $bodyContents[] = [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'spacing' => 'sm',
+            'margin' => 'md',
+            'contents' => $quizOptions
+        ];
+    } else {
+        echo "[INFO] Quiz data was not valid or not generated. Skipping quiz in message.\n";
+    }
+
     $bubble = [
         'type' => 'bubble',
         'styles' => [
@@ -283,15 +333,11 @@ foreach ($feeds as $feed) {
         ],
     ];
 
-    echo "[DEBUG] Image URL before validation: " . $imageUrl . "\n"; // デバッグログ追加
     $isImageUrlValid = !empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL) && strlen($imageUrl) <= 2000;
-    echo "[DEBUG] Image URL validation result: " . ($isImageUrlValid ? "true" : "false") . "\n"; // デバッグログ追加
 
-    // og:imageが見つからなかった場合、フィード設定のdefault_image_urlを使用
     if (!$isImageUrlValid && isset($feed['default_image_url']) && filter_var($feed['default_image_url'], FILTER_VALIDATE_URL) && strlen($feed['default_image_url']) <= 2000) {
         $imageUrl = $feed['default_image_url'];
-        $isImageUrlValid = true; // デフォルト画像が有効なのでtrueに設定
-        echo "[DEBUG] Using default_image_url: " . $imageUrl . "\n"; // デバッグログ追加
+        $isImageUrlValid = true;
     }
 
     if ($isImageUrlValid) {
@@ -302,9 +348,6 @@ foreach ($feeds as $feed) {
             'aspectRatio' => '20:13',
             'aspectMode' => 'cover',
         ];
-        echo "[DEBUG] Hero image added to bubble with URL: " . $imageUrl . "\n"; // デバッグログ追加
-    } else {
-        echo "[DEBUG] Hero image not added to bubble (validation failed or empty imageUrl).\n"; // デバッグログ追加
     }
 
     $altTextTags = !empty($tags) ? '[' . implode('][', $tags) . '] ' : '';
@@ -314,7 +357,6 @@ foreach ($feeds as $feed) {
         'contents' => $bubble,
     ];
 
-    // Send the message
     if (sendLineMessage($channelAccessToken, $userId, [$flexMessage])) {
         $dataDir = dirname($last_url_file);
         if (!is_dir($dataDir)) {

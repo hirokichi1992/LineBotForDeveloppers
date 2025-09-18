@@ -706,5 +706,17 @@
         ],
         "source": "Qiita トレンド",
         "date": "2025-09-16T10:46:20+09:00"
+    },
+    {
+        "title": "第8回「LegalOn」誕生の裏側：検索編 | LegalOn Technologies Engineering Blog",
+        "url": "https:\/\/tech.legalforce.co.jp\/entry\/legalon-behindthescenes-8",
+        "summary": "LegalOn Technologiesの検索システム開発の裏側を、Webエンジニア向けに解説。小規模チームでの立ち上げからElasticsearchのKubernetes上での運用、インデクシング速度の20倍向上、LegalOnアシスタントの導入など、技術選定の工夫と価値向上への貢献を紹介。設計段階でのオーナーシップ不足やデータパイプラインの課題など、反省点も共有し、今後の展望として精度改善とAIエージェントへの挑戦を語る。",
+        "tags": [
+            "Web開発",
+            "AI",
+            "インフラ"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 23:00:00 GMT"
     }
 ]

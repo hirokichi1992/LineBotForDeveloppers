@@ -486,5 +486,17 @@
         ],
         "source": "企業テックブログ新着記事",
         "date": "Thu, 18 Sep 2025 04:57:02 GMT"
+    },
+    {
+        "title": "CUDA無し環境でPyTorchでGPUを使用する手軽な方法",
+        "url": "https:\/\/zenn.dev\/karaage0703\/articles\/48bcb55002c360",
+        "summary": "CUDA未インストールの環境でも、pipやuvでPyTorchをインストールするだけでGPUが利用可能になるという記事です。以前はCUDAとPyTorchのバージョン管理が煩雑でしたが、現在ではPyTorchにCUDAランタイムライブラリが同梱されているため、容易にGPUを利用できます。Webエンジニアは、この手軽さを利用して、深層学習のプロトタイプ開発などを迅速に進めることができます。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "Zenn トレンド記事",
+        "date": "Wed, 17 Sep 2025 16:06:54 GMT"
     }
 ]

@@ -590,5 +590,21 @@
         ],
         "source": "企業テックブログ新着記事",
         "date": "Thu, 18 Sep 2025 11:00:00 GMT"
+    },
+    {
+        "title": "SilentSync RAT Delivered via Two Malicious PyPI Packages Targeting Python Developers",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/silentsync-rat-delivered-via-two.html",
+        "summary": "Cybersecurity researchers have discovered two new malicious packages in the Python Package Index (Py…",
+        "tags": [],
+        "source": "The Hacker News",
+        "date": "Thu, 18 Sep 2025 17:08:00 +0530"
+    },
+    {
+        "title": "個人環境で格安のSentinel Data lake 使っていると思ったら、50万課金されてしまった話",
+        "url": "https:\/\/zenn.dev\/hirotomotaguchi\/articles\/202509_microsoft-sentinel-data-lake",
+        "summary": "この記事は、Microsoft Sentinelのデータレイク機能を検証していたところ、予想外の50万円の課金が発生してしまった体験談です。まず最初にお伝えしたいのは、このトラブルが私のドキュメントの…",
+        "tags": [],
+        "source": "Zenn トレンド記事",
+        "date": "Wed, 17 Sep 2025 23:35:58 GMT"
     }
 ]

@@ -10,22 +10,24 @@ define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
 /**
  * URLから記事の本文とog:imageを取得する
  */
-function fetchArticleContent(string $url, string $scrapingApiKey): array {
-    echo "[INFO] Fetching article content from: {$url}\n";
+function fetchArticleContent(string $url, string $scrapingApiKey): array
+{
+    echo "[INFO] Fetching article content from: {$url}\\n";
 
     if (!empty($scrapingApiKey)) {
-        echo "[INFO] Using Browserless.io to fetch content.\n";
+        echo "[INFO] Using Browserless.io to fetch content.\\n";
         $ch = curl_init(BROWSERLESS_API_URL . '?token=' . $scrapingApiKey);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['url' => $url]));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     } else {
-        echo "[INFO] Using direct cURL to fetch content.\n";
+        echo "[INFO] Using direct cURL to fetch content.\\n";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
+  Chrome/91.0.4472.124 Safari/537.36');
     }
 
     $html = curl_exec($ch);
@@ -33,19 +35,23 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array {
     curl_close($ch);
 
     if ($http_code !== 200 || $html === false) {
-        echo "[WARNING] Failed to fetch article content. HTTP Status: {$http_code}\n";
+        echo "[WARNING] Failed to fetch article content. HTTP Status: {$http_code}\\n";
         return ['text' => '', 'image_url' => ''];
     }
 
     $imageUrl = '';
-    if (preg_match('/<meta\s+property=(?P<quote>["\'])og:image(?P=quote)\s+content=(?P<quote2>["\'])(.*?)(?P=quote2)\s*\/?\?>/i', $html, $matches)) {
+    if (preg_match(
+        '/<meta\\s+property=(?P<quote>[\"\\\'])og:image(?P=quote)\\s+content=(?P<quote2>[\"\\\'])(.*?)(?P=quote2)\\s*\\/?\\?>/i',
+        $html,
+        $matches
+    )) {
         $imageUrl = html_entity_decode($matches[3]);
-    } 
+    }
 
     $text = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $html);
     $text = preg_replace('#<style(.*?)>(.*?)</style>#is', '', $text);
     $text = strip_tags($text);
-    $text = preg_replace('/\s+/s', ' ', $text);
+    $text = preg_replace('/\\s+/s', ' ', $text);
     $text = trim($text);
 
     return ['text' => $text, 'image_url' => $imageUrl];
@@ -55,35 +61,44 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array {
 /**
  * Gemini APIを呼び出して、記事の要約、タグ、クイズを一度に取得する
  */
-function getAiAnalysis(string $text, string $apiKey): array {
+function getAiAnalysis(string $text, string $apiKey): array
+{
     $defaultResponse = ['summary' => '', 'tags' => [], 'quiz' => null];
     if (empty($apiKey) || empty($text)) {
-        echo "[INFO] API key or article text is empty. Skipping AI analysis.\n";
+        echo "[INFO] API key or article text is empty. Skipping AI analysis.\\n";
         return $defaultResponse;
     }
 
-    $tagList = "セキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング, マネジメント, その他";
-    $prompt = "以下の記事を分析し、指定のJSON形式で出力してください。\n\n" 
-            . "# 制約\n" 
-            . "- summary: 顧客向けにスクラッチ開発を行うWebエンジニアの視点で、実務に応用できる提案を含めて日本語で200字程度に要約してください。\n" 
-            . "- tags: 記事の内容に最も関連性の高いタグを、以下のリストから最大3つまで選んでください。\n" 
-            . "- quiz: 記事の核心的な内容を問う三択クイズを1問作成してください。`question`（問題文）、`options`（3つの選択肢の配列）、`correct_index`（正解のインデックス番号 0-2）のキーを持つオブジェクトにしてください。\n" 
-            . "- quizが不要または作成困難な場合は `quiz` の値を `null` にしてください。\n\n" 
-            . "# 利用可能なタグリスト\n{$tagList}\n\n" 
-            . "# 記事\n" . mb_substr($text, 0, 8000) . "\n\n" 
-            . "# 出力形式 (JSONのみを返すこと)\n" 
-            . "{\n" 
-            . "  \"summary\": \"ここに要約が入ります。\",\n" 
-            . "  \"tags\": [\"タグ1\", \"タグ2\"],\n" 
-            . "  \"quiz\": {\n" 
-            . "    \"question\": \"ここに問題文が入ります。\",\n" 
-            . "    \"options\": [\"選択肢1\", \"選択肢2\", \"選択肢3\"],\n" 
-            . "    \"correct_index\": 0\n" 
-            . "  }\n" 
-            . "}";
+    $tagList = "セキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング,
+  マネジメント, その他";
+    $prompt = "以下の記事を分析し、指定のJSON形式で出力してください。\\n\\n"
+        . "# 制約\\n"
+        . "- summary:
+  顧客向けにスクラッチ開発を行うWebエンジニアの視点で、実務に応用できる提案を含めて日本語で200字程度に要約してください。\\n"
+        . "- tags: 記事の内容に最も関連性の高いタグを、以下のリストから最大3つまで選んでください。\\n"
+        . "- quiz: 記事の核心的な内容を問う三択クイズを1問作成してください。question（問題文）、options（3つの選択肢の配列）、correct_inde
+  x（正解のインデックス番号 0-2）のキーを持つオブジェクトにしてください。\\n"
+        . "- quizが不要または作成困難な場合は quiz の値を null にしてください。\\n\\n"
+        . "# 利用可能なタグリスト\\n{$tagList}\\n\\n"
+        . "# 記事\\n" . mb_substr($text, 0, 8000) . "\\n\\n"
+        . "# 出力形式 (JSONのみを返すこと)\\n"
+        . "{\\n"
+        . "  \"summary\": \"ここに要約が入ります。\",\\n"
+        . "  \"tags\": [\"タグ1\", \"タグ2\"],\\n"
+        . "  \"quiz\": {\\n"
+        . "    \"question\": \"ここに問題文が入ります。\",\\n"
+        . "    \"options\": [\"選択肢1\", \"選択肢2\", \"選択肢3\"],\\n"
+        . "    \"correct_index\": 0\\n"
+        . "  }\\n"
+        . "}";
 
     $data = [
-        'contents' => [['parts' => [['text' => $prompt]]]]
+        'contents' => [['parts' => [['text' => $prompt]]]],
+        'generationConfig' => [
+            'maxOutputTokens' => 1024,
+            'temperature' => 0.3,
+            'responseMimeType' => 'application/json',
+        ]
     ];
 
     $ch = curl_init(GEMINI_API_URL . '?key=' . $apiKey);
@@ -92,30 +107,40 @@ function getAiAnalysis(string $text, string $apiKey): array {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // タイムアウトを30秒に設定
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     if ($http_code !== 200) {
-        echo "[WARNING] AI analysis request failed with HTTP Status: {$http_code}\nResponse: {$response}\n";
+        echo "[WARNING] AI analysis request failed with HTTP Status: {$http_code}\\nResponse: {$response}\\n";
         return $defaultResponse;
     }
 
     $result = json_decode($response, true);
     $aiOutputText = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+    // AIの出力がMarkdownのコードブロックで囲まれている場合、それを取り除く
+    if (preg_match('/^`json\\s*(.*?)\\s*
+
+  `$/s', $aiOutputText, $matches)) {
+        $aiOutputText = $matches[1];
+        echo "[INFO] Cleaned up Markdown JSON code block.\\n";
+    }
+
     $aiParsedOutput = json_decode($aiOutputText, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        echo "[WARNING] Failed to parse AI output text as JSON. Extracted text: {$aiOutputText}\n";
+        echo "[WARNING] Failed to parse AI output text as JSON. Extracted text: {$aiOutputText}\\n";
         return $defaultResponse;
     }
 
     // quizデータが期待通りか検証
     $quizData = $aiParsedOutput['quiz'] ?? null;
-    if ($quizData !== null && (!isset($quizData['question']) || !isset($quizData['options']) || !is_array($quizData['options']) || count($quizData['options']) !== 3 || !isset($quizData['correct_index']))) {
-        echo "[WARNING] Generated quiz data is invalid. Discarding quiz.\n";
+    if ($quizData !== null && (!isset($quizData['question']) || !isset($quizData['options']) || !is_array($quizData['options']) ||
+        count($quizData['options']) !== 3 || !isset($quizData['correct_index']))) {
+        echo "[WARNING] Generated quiz data is invalid. Discarding quiz.\\n";
         $quizData = null; // 不正なクイズデータは破棄
     }
 
@@ -130,12 +155,14 @@ function getAiAnalysis(string $text, string $apiKey): array {
 /**
  * cURLを使ってRSSフィードの内容を堅牢に取得する
  */
-function fetchRssContent(string $url): string|false {
+function fetchRssContent(string $url): string|false
+{
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/atom+xml, application/rss+xml, application/xml;q=0.9, */*;q=0.8']);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124
+  Safari/537.36');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/atom+xml, application/rss+xml, application/xml;q=0.9, /;q=0.8']);
 
     $content = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -150,7 +177,8 @@ function fetchRssContent(string $url): string|false {
 /**
  * LINEにプッシュメッセージを送信する
  */
-function sendLineMessage(string $channelAccessToken, string $userId, array $messages): bool {
+function sendLineMessage(string $channelAccessToken, string $userId, array $messages): bool
+{
     $body = [
         'to' => $userId,
         'messages' => $messages,
@@ -179,7 +207,8 @@ function sendLineMessage(string $channelAccessToken, string $userId, array $mess
 /**
  * LINEにリプライメッセージを送信する
  */
-function replyLineMessage(string $channelAccessToken, string $replyToken, array $messages): bool {
+function replyLineMessage(string $channelAccessToken, string $replyToken, array $messages): bool
+{
     $body = [
         'replyToken' => $replyToken,
         'messages' => $messages,

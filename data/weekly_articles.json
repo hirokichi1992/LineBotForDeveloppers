@@ -498,5 +498,29 @@
         ],
         "source": "Zenn トレンド記事",
         "date": "Wed, 17 Sep 2025 16:06:54 GMT"
+    },
+    {
+        "title": "セキュリティ月間から7ヶ月程経ったので改めてセキュリティについて考えてみた | iimon TECH BLOG",
+        "url": "https:\/\/tech.iimon.co.jp\/entry\/2025\/09\/18\/152814",
+        "summary": "Webエンジニア向けに、Webアプリケーションのセキュリティ対策の重要性を解説。XSS, CSRF, クリックジャッキング, オープンリダイレクトといった攻撃手法と対策を具体的に説明し、フロントエンド実装における注意点を指摘。Reactの`dangerouslySetInnerHTML`の危険性や、HTTPヘッダ設定の重要性など、実務で役立つ知識を提供。セキュリティは継続的な学習が不可欠であると強調。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 06:28:14 GMT"
+    },
+    {
+        "title": "Google Patches Chrome Zero-Day CVE-2025-10585 as Active V8 Exploit Threatens Millions",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/google-patches-chrome-zero-day-cve-2025.html",
+        "summary": "Google Chromeのゼロデイ脆弱性CVE-2025-10585が発見され、V8エンジンにおける型混乱の問題が悪用されています。攻撃者はこの脆弱性を利用して任意コード実行やプログラムクラッシュを引き起こす可能性があります。Chromeのバージョン140.0.7339.185\/.186 (Windows\/macOS) および 140.0.7339.185 (Linux) へのアップデートが推奨されます。顧客向けのWebアプリケーション開発においては、利用するブラウザのセキュリティアップデートを迅速に適用し、V8エンジン等の脆弱性情報を常に監視することが重要です。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "The Hacker News",
+        "date": "Thu, 18 Sep 2025 11:19:00 +0530"
     }
 ]

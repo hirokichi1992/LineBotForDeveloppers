@@ -1,1 +1,1 @@
-https://developer.medley.jp/entry/2025/09/18/200000
+https://zenn.dev/dataheroes/articles/snowflake-similarity

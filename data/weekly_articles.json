@@ -646,5 +646,17 @@
         ],
         "source": "The Hacker News",
         "date": "Thu, 18 Sep 2025 18:26:00 +0530"
+    },
+    {
+        "title": "Snowflakeにて文章の類似度を測るときに使う技術【Frosty Friday week69解説】 | Snowflake Data Heroesのフィード",
+        "url": "https:\/\/zenn.dev\/dataheroes\/articles\/snowflake-similarity",
+        "summary": "Snowflakeで文章の類似度を測る技術について、文字列ベースの類似度判定（JAROWINKLER_SIMILARITY、EDITDISTANCE）と埋め込みベースの意味的類似度判定（AI_EMBED, AI_SIMILARITY）の手法を解説。ベクトル検索技術を活用し、文章の意味的な近さを評価するアプローチを紹介。顧客のデータ分析基盤構築において、類似度分析を活用したデータ品質向上や新たな価値創出に繋げられる。",
+        "tags": [
+            "AI",
+            "SQL",
+            "Web開発"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 12:36:56 GMT"
     }
 ]

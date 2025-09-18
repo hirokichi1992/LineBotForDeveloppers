@@ -578,5 +578,17 @@
         ],
         "source": "CodeZine",
         "date": "Thu, 18 Sep 2025 18:00:00 +0900"
+    },
+    {
+        "title": "DroidKaigi 2025 参加レポート - Supporter Sponsor として協賛しました！ | MEDLEY Developer Portal",
+        "url": "https:\/\/developer.medley.jp\/entry\/2025\/09\/18\/200000",
+        "summary": "DroidKaigi 2025の参加レポート。Kotlin MultiplatformやCompose Multiplatformを用いたクロスプラットフォーム開発、スマホ新法がアプリビジネスに与える影響、オフラインファーストなFlutterアプリ設計について紹介。顧客向けスクラッチ開発では、KMP\/CMPによる効率化とネイティブUIの使い分け、オフライン対応を考慮した設計が重要となる。",
+        "tags": [
+            "Web開発",
+            "アプリ開発",
+            "プログラミング言語"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Thu, 18 Sep 2025 11:00:00 GMT"
     }
 ]

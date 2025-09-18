@@ -522,5 +522,25 @@
         ],
         "source": "The Hacker News",
         "date": "Thu, 18 Sep 2025 11:19:00 +0530"
+    },
+    {
+        "title": "UNIVERGE IX\/IX-R\/IX-Vシリーズルータにおけるクロスサイトスクリプティングの脆弱性",
+        "url": "https:\/\/jvndb.jvn.jp\/ja\/contents\/2025\/JVNDB-2025-000079.html",
+        "summary": "日本電気株式会社が提供するUNIVERGE IX\/IX-R\/IX-Vシリーズルータには、次の脆弱性が存在します。\r\nクロスサイトスクリプティング（CWE-79）- CVE-2025-8153\r\nこの脆…",
+        "tags": [],
+        "source": "JVN 新着脆弱性情報",
+        "date": ""
+    },
+    {
+        "title": "Amazon EC2 M4およびM4 Pro Macインスタンスが一般提供開始",
+        "url": "http:\/\/codezine.jp\/article\/detail\/22259",
+        "summary": "AWSがEC2 M4\/M4 Pro Macインスタンスの一般提供を開始。iOS\/macOSアプリのビルド・テストに最適化され、M2世代と比較して最大20%の性能向上を実現。特にM4 Proはより高性能。AWSコンソール等から起動可能で、現在は米国の一部リージョンで提供、今後拡大予定。Webエンジニアは、これらのインスタンスを活用し、開発効率の向上や高速なCI\/CDパイプラインの構築を検討できる。",
+        "tags": [
+            "Web開発",
+            "クラウド",
+            "アプリ開発"
+        ],
+        "source": "CodeZine",
+        "date": "Thu, 18 Sep 2025 16:00:00 +0900"
     }
 ]

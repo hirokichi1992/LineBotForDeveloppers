@@ -119,9 +119,11 @@ foreach ($feeds as $feed) {
     $articleText = $articleContent['text'];
     $imageUrl = $articleContent['image_url'];
 
+    // Get summary, tags, and quiz in one go
     $analysisResult = getAiAnalysis($articleText, $apiKey);
-    $tags = $analysisResult['tags'];
     $summary = $analysisResult['summary'];
+    $tags = $analysisResult['tags'];
+    $quizData = $analysisResult['quiz'];
 
     if (empty($summary)) {
         echo "[INFO] AI summary failed or was empty. Falling back to description snippet.\n";
@@ -132,14 +134,7 @@ foreach ($feeds as $feed) {
         }
         $summary = trim($summary);
     } else {
-        echo "[INFO] AI summary generated successfully.\n";
-    }
-
-    // --- Generate Quiz ---
-    $quizData = null;
-    if (!empty($articleText) && !empty($apiKey)) {
-        echo "[INFO] Attempting to generate a quiz...\n";
-        $quizData = generateQuizFromArticle($articleText, $apiKey);
+        echo "[INFO] AI summary and tags generated successfully.\n";
     }
 
     // --- Build Flex Message ---
@@ -231,7 +226,7 @@ foreach ($feeds as $feed) {
     }
 
     // --- Add Quiz to Flex Message ---
-    if ($quizData && isset($quizData['question']) && isset($quizData['options']) && count($quizData['options']) === 3 && isset($quizData['correct_index'])) {
+    if ($quizData) { // Simplified check, as validation is now in getAiAnalysis
         echo "[INFO] Adding quiz to the message.\n";
 
         $bodyContents[] = ['type' => 'separator', 'margin' => 'xl'];
@@ -282,7 +277,7 @@ foreach ($feeds as $feed) {
             'contents' => $quizOptions
         ];
     } else {
-        echo "[INFO] Quiz data was not valid or not generated. Skipping quiz in message.\n";
+        echo "[INFO] Quiz data was not generated or was invalid. Skipping quiz in message.\n";
     }
 
     $bubble = [

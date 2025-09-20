@@ -1,1 +1,1 @@
-https://zenn.dev/hirotomotaguchi/articles/202509_microsoft-sentinel-data-lake
+https://zenn.dev/asap/articles/d3bada2f005330

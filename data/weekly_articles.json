@@ -718,5 +718,89 @@
         ],
         "source": "企業テックブログ新着記事",
         "date": "Thu, 18 Sep 2025 23:00:00 GMT"
+    },
+    {
+        "title": "AWS ECSの各クラスタのデプロイの失敗を横断的に検知する方法 | エムスリーテックブログ",
+        "url": "https:\/\/www.m3tech.blog\/entry\/2025\/09\/20\/170000",
+        "summary": "エムスリーのWebエンジニアが、AWS ECSクラスタにおけるデプロイ失敗を横断的に検知する仕組みを構築した事例を紹介。従来、各サービスのリポジトリで個別に監視していたものを、EventBridgeを活用して一元的に検知・通知する方式に変更。Terraformによる実装例を交え、工数削減と検知漏れの防止に貢献。通知システム自体の監視も行い、信頼性を高めている。",
+        "tags": [
+            "Web開発",
+            "クラウド",
+            "インフラ"
+        ],
+        "source": "企業テックブログ新着記事",
+        "date": "Sat, 20 Sep 2025 08:00:00 GMT"
+    },
+    {
+        "title": "No more down migrations",
+        "url": "https:\/\/freek.dev\/2927-no-more-down-migrations",
+        "summary": "Tempestの最新リリースでデータベースのマイグレーションが大幅にリファクタリングされたという記事。Laravel, PHP, JavaScriptに関する情報も発信しており、プログラミングのヒントや進行中のプロジェクトで学んだことなどを共有。月刊ニュースレターでは、PHP開発者向けの役立つ情報、チュートリアル、意見、パッケージを紹介している。SevallaというPaaSの紹介も。",
+        "tags": [
+            "Web開発",
+            "プログラミング言語",
+            "データベース"
+        ],
+        "source": "Freek.dev Blog",
+        "date": "2025-09-19T14:02:10+02:00"
+    },
+    {
+        "title": "LastPass Warns of Fake Repositories Infecting macOS with Atomic Infostealer",
+        "url": "https:\/\/thehackernews.com\/2025\/09\/lastpass-warns-of-fake-repositories.html",
+        "summary": "LastPassが、macOSユーザーを標的とした情報窃取マルウェア「Atomic Infostealer」を拡散する偽のGitHubリポジトリについて警告を発しています。SEOポイズニングを利用し、BingやGoogleの検索結果上位に悪意のあるGitHubサイトへのリンクを表示させ、LastPassなどの正規ツールを装ってマルウェアをインストールさせようとします。対策として、公式チャネルからのソフトウェアダウンロードを徹底することが重要です。",
+        "tags": [
+            "セキュリティ",
+            "Web開発",
+            "マルウェア"
+        ],
+        "source": "The Hacker News",
+        "date": "Sat, 20 Sep 2025 12:37:00 +0530"
+    },
+    {
+        "title": "On inclusive personas and inclusive user research",
+        "url": "https:\/\/css-tricks.com\/on-inclusive-personas-and-inclusive-user-research\/",
+        "summary": "この記事では、インクルーシブなユーザーリサーチにおけるペルソナの利用について、従来のペルソナ作成方法との違いや、個々のユーザー体験に焦点を当てる重要性を解説しています。アシスティブテクノロジーの利用者が必ずしも障害者とは限らない点や、ラディカル参加型デザインの概念を紹介し、より良いアウトカムを得るための具体的なアクションを提案します。Webエンジニアは、多様なユーザーを考慮した設計を心がけるべきです。",
+        "tags": [
+            "UI\/IX Design",
+            "Web開発",
+            "アクセシビリティ"
+        ],
+        "source": "CSS-Tricks",
+        "date": "Fri, 19 Sep 2025 13:58:37 +0000"
+    },
+    {
+        "title": "【Python】生成AIがこのコード書いたら気をつけろ！ - 事故らないためのチェックリスト",
+        "url": "https:\/\/qiita.com\/Sakai_path\/items\/d4ec1e848672033ca256?utm_campaign=popular_items&utm_medium=feed&utm_source=popular_items",
+        "summary": "生成AIが生成するPythonコードには、セキュリティ、パフォーマンス、保守性の面で問題があるコードが含まれる可能性がある。この記事では、Webエンジニアが注意すべき15個の危険なパターンと、その修正方法を具体的に解説する。ログ設定、例外処理、セキュリティAPIの使用、SQLインジェクション対策、タイムゾーン処理、浮動小数点数比較、非同期処理、リソース管理、設定管理など、実務で役立つ提案が満載。",
+        "tags": [
+            "AI",
+            "Python",
+            "セキュリティ"
+        ],
+        "source": "Qiita トレンド",
+        "date": "2025-09-20T11:50:15+09:00"
+    },
+    {
+        "title": "【U35エンジニアに伝えたい、あなたのメッセージを募集中】「Developers Boost 2025（デブスト2025）」12\/6（土）開催！",
+        "url": "http:\/\/codezine.jp\/article\/detail\/22257",
+        "summary": "ITエンジニア向けイベント「Developers Boost 2025」が12月6日に開催。参加対象を35歳以下に拡大し、登壇者の年齢制限を撤廃。テーマは「Hello, new world! ～技術とキャリアを次のステージへ～」。通常セッションとライトニングトークの登壇者を9月26日まで公募。若手エンジニアの成長を支援する内容で、技術やキャリア戦略に関する知見を共有する場を目指す。",
+        "tags": [
+            "Web開発",
+            "キャリア",
+            "イベント"
+        ],
+        "source": "CodeZine",
+        "date": "Fri, 19 Sep 2025 18:00:00 +0900"
+    },
+    {
+        "title": "RTX3060でMoE付きTransformerの事前学習をしてみる",
+        "url": "https:\/\/zenn.dev\/asap\/articles\/d3bada2f005330",
+        "summary": "RTX3060を用いたMoE付きTransformerの事前学習に関する備忘録。既存記事を参考に、一部修正・カスタムを行い、Huggingfaceへのアップロードも実装。400MパラメータのTransformerを使用し、RoPE、MoE、GQA、SwiGLUなどを活用。Tokenizerは既存のSmolLM-360Mを利用し、データセットはfineweb-eduを使用。事前学習済みモデルを顧客向けWeb開発に応用する際の参考になる。",
+        "tags": [
+            "AI",
+            "Web開発",
+            "プログラミング言語"
+        ],
+        "source": "Zenn トレンド記事",
+        "date": "Fri, 19 Sep 2025 15:40:14 GMT"
     }
 ]

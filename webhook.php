@@ -116,34 +116,52 @@ function handlePostbackEvent(array $event, string $channelAccessToken): void
 function handleTextMessage(array $event, string $channelAccessToken): void
 {
     $replyToken = $event['replyToken'];
-    $userMessage = strtolower(trim($event['message']['text']));
+    // strtolowerを削除し、前後の空白除去のみにすることで、マルチバイト文字の判定を確実にする
+    $userMessage = trim($event['message']['text']);
+
+    error_log("[INFO] Received text message: " . $userMessage);
 
     // Only trigger on specific keywords
     if ($userMessage !== '最新情報' && $userMessage !== 'news') {
-        return;
+        error_log("[INFO] Message did not match keywords. Ignoring.");
+        return; // サイレントに終了
     }
+
+    error_log("[INFO] Keyword matched. Looking for notification files in " . NOTIFICATIONS_DIR);
 
     $notificationFiles = glob(NOTIFICATIONS_DIR . '/*.json');
 
+    // glob()が失敗したかどうかをチェック
+    if ($notificationFiles === false) {
+        error_log("[ERROR] glob() function failed to read notifications directory.");
+        return; // エラー時はサイレントに終了
+    }
+
     if (empty($notificationFiles)) {
+        error_log("[INFO] No notification files found. Sending 'no news' message.");
         $reply = [
             'type' => 'text',
-            'text' => '新しいお知らせはありませんでした。毎日22時頃に更新を確認していますので、また後で試してみてくださいね！'
+            'text' => '新しいお知らせはありませんでした。GitHub Actionsが1時間に1回、最新情報を確認していますので、しばらくしてからもう一度お試しください。'
         ];
-        replyLineMessage($channelAccessToken, $replyToken, [$reply]);
+        if (!replyLineMessage($channelAccessToken, $replyToken, [$reply])) {
+            error_log("[ERROR] Failed to send 'no news' message.");
+        }
         return;
     }
+
+    error_log("[INFO] Found " . count($notificationFiles) . " notification files. Preparing carousel message.");
 
     $bubbles = [];
     foreach ($notificationFiles as $file) {
         $content = file_get_contents($file);
         $data = json_decode($content, true);
         if ($data && isset($data['contents'])) {
-            $bubbles[] = $data['contents']; // Add the bubble from the saved message
+            $bubbles[] = $data['contents']; // バブルコンテンツを配列に追加
         }
     }
 
     if (empty($bubbles)) {
+        error_log("[ERROR] Notification files were found, but failed to parse bubble content.");
         $reply = [
             'type' => 'text',
             'text' => '通知の準備中にエラーが発生しました。しばらくしてからもう一度お試しください。'
@@ -152,9 +170,10 @@ function handleTextMessage(array $event, string $channelAccessToken): void
         return;
     }
 
-    // Limit to 10 bubbles per carousel
+    // カルーセルの上限は10件
     if (count($bubbles) > 10) {
         $bubbles = array_slice($bubbles, 0, 10);
+        error_log("[INFO] Sliced bubbles to 10 for carousel limit.");
     }
 
     $carouselMessage = [
@@ -167,11 +186,12 @@ function handleTextMessage(array $event, string $channelAccessToken): void
     ];
 
     if (replyLineMessage($channelAccessToken, $replyToken, [$carouselMessage])) {
-        // Clean up sent notification files
+        error_log("[SUCCESS] Sent carousel message with " . count($bubbles) . " bubbles.");
+        // 送信済みのファイルを削除
         foreach ($notificationFiles as $file) {
             unlink($file);
         }
-        error_log('[SUCCESS] Sent notifications and cleaned up files.');
+        error_log("[INFO] Cleaned up sent notification files.");
     } else {
         error_log('[ERROR] Failed to send carousel message.');
     }

@@ -1,8 +1,15 @@
 # Use the official PHP 8.2 image with Apache
 FROM php:8.2-apache
 
-# Install required PHP extensions that the script uses
-RUN docker-php-ext-install curl mbstring simplexml
+# Install system dependencies for PHP extensions, then the extensions themselves
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    && docker-php-ext-install \
+    curl \
+    mbstring \
+    simplexml \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy application files to the Apache document root
 COPY . /var/www/html/

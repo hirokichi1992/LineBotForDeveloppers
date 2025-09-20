@@ -32,8 +32,8 @@ $apiKey = getenv('AI_API_KEY');
 $scrapingApiKey = getenv('SCRAPING_API_KEY');
 $force_delivery = getenv('FORCE_DELIVERY') === 'true';
 
-if (!$channelAccessToken || !$userId) {
-    die("[ERROR] Environment variables LINE_CHANNEL_ACCESS_TOKEN and LINE_USER_ID must be set.\n");
+if (!$channelAccessToken) {
+    die("[ERROR] Environment variable LINE_CHANNEL_ACCESS_TOKEN must be set.\n");
 }
 
 // Load feed configuration
@@ -41,10 +41,16 @@ $feeds = require ROOT_PATH . '/config/feeds.php';
 
 
 define('WEEKLY_ARTICLES_FILE', ROOT_PATH . '/data/weekly_articles.json');
+define('NOTIFICATIONS_DIR', ROOT_PATH . '/data/notifications');
 
 // ----------------------------------------------------------------------------
 // Main Processing
 // ----------------------------------------------------------------------------
+
+// Ensure the notifications directory exists
+if (!is_dir(NOTIFICATIONS_DIR)) {
+    mkdir(NOTIFICATIONS_DIR, 0755, true);
+}
 
 foreach ($feeds as $feed) {
     $feed_name = $feed['name'];
@@ -352,7 +358,14 @@ foreach ($feeds as $feed) {
         'contents' => $bubble,
     ];
 
-    if (sendLineMessage($channelAccessToken, $userId, [$flexMessage])) {
+    // Save the notification to a file instead of sending it
+    $notification_filename = sprintf('notification_%s_%s.json', time(), $feed_name);
+    $notification_path = NOTIFICATIONS_DIR . '/' . $notification_filename;
+
+    if (file_put_contents($notification_path, json_encode($flexMessage, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
+        echo "[INFO] Successfully saved notification to {$notification_path}\n";
+
+        // Update the last notified URL and save to weekly summary
         $dataDir = dirname($last_url_file);
         if (!is_dir($dataDir)) {
             mkdir($dataDir, 0755, true);
@@ -372,9 +385,9 @@ foreach ($feeds as $feed) {
         ];
         file_put_contents(WEEKLY_ARTICLES_FILE, json_encode($articles, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         echo "[INFO] Saved article to weekly summary file.\n";
+    } else {
+        echo "[ERROR] Failed to save notification to {$notification_path}\n";
     }
-    
-    sleep(4);
 }
 
 echo "--------------------------------------------------\n";

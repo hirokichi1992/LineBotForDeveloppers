@@ -36,7 +36,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: Update last notified URL and weekly data'
-          file_pattern: 'data/last_notified_url_*.txt data/weekly_articles.json'
+          file_pattern: 'data/last_notified_url_*.txt data/weekly_articles.json data/notifications/*.json'
 
   # 週間サマリーの送信ジョブ
   send_summary:

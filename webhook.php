@@ -50,6 +50,9 @@ if ($signature !== $expectedSignature) {
     exit();
 }
 
+define('ROOT_PATH', __DIR__);
+define('NOTIFICATIONS_DIR', ROOT_PATH . '/data/notifications');
+
 // ----------------------------------------------------------------------------
 // Handle Events
 // ----------------------------------------------------------------------------
@@ -62,15 +65,32 @@ if (empty($events['events'])) {
 }
 
 foreach ($events['events'] as $event) {
-    if ($event['type'] !== 'postback') {
-        continue; // Ignore non-postback events
-    }
+    $type = $event['type'] ?? 'unknown';
 
+    switch ($type) {
+        case 'postback':
+            handlePostbackEvent($event, $channelAccessToken);
+            break;
+        case 'message':
+            if (($event['message']['type'] ?? 'unknown') === 'text') {
+                handleTextMessage($event, $channelAccessToken);
+            }
+            break;
+        default:
+            error_log("[INFO] Ignoring event type: {$type}");
+            break;
+    }
+}
+
+/**
+ * Handles postback events (e.g., quiz answers).
+ */
+function handlePostbackEvent(array $event, string $channelAccessToken): void
+{
     $replyToken = $event['replyToken'];
     $postbackDataString = $event['postback']['data'];
     parse_str($postbackDataString, $postbackData);
 
-    // --- Handle Quiz Answer ---
     if (isset($postbackData['action']) && $postbackData['action'] === 'quiz_answer') {
         $isCorrect = $postbackData['is_correct'] === '1';
 
@@ -87,6 +107,73 @@ foreach ($events['events'] as $event) {
         ];
 
         replyLineMessage($channelAccessToken, $replyToken, [$replyMessage]);
+    }
+}
+
+/**
+ * Handles text message events, specifically looking for a keyword to trigger notifications.
+ */
+function handleTextMessage(array $event, string $channelAccessToken): void
+{
+    $replyToken = $event['replyToken'];
+    $userMessage = strtolower(trim($event['message']['text']));
+
+    // Only trigger on specific keywords
+    if ($userMessage !== '最新情報' && $userMessage !== 'news') {
+        return;
+    }
+
+    $notificationFiles = glob(NOTIFICATIONS_DIR . '/*.json');
+
+    if (empty($notificationFiles)) {
+        $reply = [
+            'type' => 'text',
+            'text' => '新しいお知らせはありませんでした。毎日22時頃に更新を確認していますので、また後で試してみてくださいね！'
+        ];
+        replyLineMessage($channelAccessToken, $replyToken, [$reply]);
+        return;
+    }
+
+    $bubbles = [];
+    foreach ($notificationFiles as $file) {
+        $content = file_get_contents($file);
+        $data = json_decode($content, true);
+        if ($data && isset($data['contents'])) {
+            $bubbles[] = $data['contents']; // Add the bubble from the saved message
+        }
+    }
+
+    if (empty($bubbles)) {
+        $reply = [
+            'type' => 'text',
+            'text' => '通知の準備中にエラーが発生しました。しばらくしてからもう一度お試しください。'
+        ];
+        replyLineMessage($channelAccessToken, $replyToken, [$reply]);
+        return;
+    }
+
+    // Limit to 10 bubbles per carousel
+    if (count($bubbles) > 10) {
+        $bubbles = array_slice($bubbles, 0, 10);
+    }
+
+    $carouselMessage = [
+        'type' => 'flex',
+        'altText' => '新着記事があります！',
+        'contents' => [
+            'type' => 'carousel',
+            'contents' => $bubbles
+        ]
+    ];
+
+    if (replyLineMessage($channelAccessToken, $replyToken, [$carouselMessage])) {
+        // Clean up sent notification files
+        foreach ($notificationFiles as $file) {
+            unlink($file);
+        }
+        error_log('[SUCCESS] Sent notifications and cleaned up files.');
+    } else {
+        error_log('[ERROR] Failed to send carousel message.');
     }
 }
 

@@ -1,142 +1,87 @@
 # LINE Bot for Developers
 
-開発者向けの技術ブログやニュースの新着記事をLINEに通知するBotです。
+開発者向けの技術ブログやニュースの新着記事をLINEで受け取れるBotです。
 
 ![richmenu](https://github.com/user-attachments/assets/16ac7599-8229-409b-95b0-f74b1a0a7789)
 
 ## 主な機能
 
-- **毎日の新着記事通知**: 複数の技術系サイトのRSSフィードを監視し、新着記事を毎日LINEに通知します。
-- **AIによる記事要約とタグ生成**: Google Gemini API (`gemini-2.0-flash-latest` モデル) を利用し、新着記事の本文からAIが要約を生成し、関連するタグを自動で付与します。これにより、記事の内容を素早く把握できます。
-- **週次の人気記事まとめ**: 一週間分の記事の中から、特に注目度の高いものをまとめて通知します。
-- **サーバーレス運用**: GitHub Actionsを利用して定期的にスクリプトを実行するため、別途サーバーを用意する必要はありません。
+- **オンデマンドな記事取得**: トーク画面で「最新情報」と送信すると、その時点での新着記事をカルーセル形式で受け取れます。
+- **毎日の自動記事収集**: GitHub Actionsが1時間ごとに複数の技術系サイトのRSSフィードを巡回し、新着記事を収集・保存します。
+- **週次のサマリー通知**: 週末に、その週に収集した記事のサマリーがプッシュ通知で届きます。
+- **AIによる記事要約とタグ生成**: Google Gemini APIを利用し、記事の要約、関連タグ、三択クイズを自動で生成します。
 
----
+## アーキテクチャ
 
-## 開発者向け情報
+このBotは、LINEの無料API上限を回避しつつ、柔軟な通知を実現するために、オンデマンドな応答（プル型）と週次のプッシュ通知を組み合わせたハイブリッド構成になっています。
 
-このプロジェクトのメンテナンスや改修を行う方向けの情報です。
+1.  **記事の収集 (GitHub Actions)**
+    - `.github/workflows/notify.yml` に基づき、1時間ごとに `scripts/run_daily.php` が実行されます。
+    - スクリプトは `config/feeds.php` のRSSフィードをチェックし、新着記事を見つけます。
+    - 新着記事ごとに、AIで要約・タグ・クイズを生成し、LINEのメッセージ配信用JSONファイルとして `data/notifications/` ディレクトリに保存します。
+    - 週次サマリーのため、記事情報を `data/weekly_articles.json` にも追記します。
+    - 最後に、生成されたデータファイルをリポジトリにコミットします。
 
-### 必須環境
+2.  **記事の配信 (Render + Webhook)**
+    - `webhook.php` が、RenderのようなPaaS上でWebサービスとして常時稼働します。
+    - ユーザーがLINEで「最新情報」と送信すると、LINEプラットフォームから `webhook.php` にリクエストが送られます。
+    - `webhook.php` は `data/notifications/` に保存されているJSONファイルをすべて読み込み、カルーセル形式のFlex Messageを組み立てて、応答メッセージとして送信します。
+    - 送信後、処理済みのJSONファイルは削除されます。
 
-- PHP 8.1以上
-- Composer
-- 以下のPHP拡張機能:
-    - `curl`
-    - `json`
-    - `mbstring`
-    - `SimpleXML`
-    - `libxml`
+3.  **週次サマリー (GitHub Actions)**
+    - 週末に、GitHub Actionsが `scripts/run_weekly.php` を実行します。
+    - このスクリプトは `data/weekly_articles.json` を読み込み、要約メッセージをLINEのPush API経由で送信します。
 
-### セットアップ
+## セットアップ手順
 
-1.  リポジトリをクローンします。
-    ```bash
-    git clone https://github.com/your-username/LineBotForDeveloppers.git
-    cd LineBotForDeveloppers
-    ```
+### 1. リポジトリの準備
 
-2.  `.env.example` ファイルをコピーして `.env` ファイルを作成します。
-    ```bash
-    cp .env.example .env
-    ```
+このリポジトリを自身のGitHubアカウントにフォーク（Fork）またはクローンします。
 
-3.  `.env` ファイルを編集し、以下の環境変数を設定します。
+### 2. アプリケーションのデプロイ
 
-    -   **`LINE_CHANNEL_ACCESS_TOKEN`** (必須)
-        -   LINE Developersコンソールで発行したチャネルアクセストークン（長期）を設定します。
-    -   **`LINE_CHANNEL_SECRET`** (必須)
-        -   LINE Developersコンソールで確認できるチャネルシークレットを設定します。
-    -   **`LINE_USER_ID`** (必須)
-        -   通知を受け取りたいLINEユーザーのIDを設定します。これは、Botと友達になった後にWebhook経由で取得できます。
-    -   **`AI_API_KEY`** (任意)
-        -   Google AI Studioなどで取得したGemini APIキーを設定します。設定しない場合、AI要約機能は無効になり、記事の冒頭が通知されます。
-        -   **Gemini APIの利用上限について**: 無料枠では、1分あたり60リクエスト、1日あたり1,500リクエストの制限があります。これを超える利用をする場合は、有料プランへのアップグレードを検討してください。詳細は[公式ドキュメント](https://ai.google.dev/gemini-api/docs/rate-limits#free-tier)をご確認ください。
+RenderのようなPaaSにアプリケーションをデプロイします。以下はRenderでの手順です。
 
-    ```dotenv
-    LINE_CHANNEL_ACCESS_TOKEN="YOUR_CHANNEL_ACCESS_TOKEN"
-    LINE_CHANNEL_SECRET="YOUR_CHANNEL_SECRET"
-    LINE_USER_ID="YOUR_LINE_USER_ID"
-    AI_API_KEY="YOUR_GEMINI_API_KEY"
-    ```
+1.  RenderにGitHubアカウントでサインアップします。
+2.  ダッシュボードで「New +」>「Web Service」を選択し、このリポジトリを接続します。
+3.  以下の通り設定します。
+    - **Environment**: `Docker` （リポジトリ内の`Dockerfile`が自動で使われます）
+    - **Name**: 好きな名前（例: `line-bot-developpers`）
+    - **Start Command**: 空欄のままにします。
+    - **Instance Type**: `Free`
+4.  「Create Web Service」をクリックしてデプロイします。
 
-### 主要なスクリプトとローカルでの実行
+### 3. 環境変数の設定
 
-GitHub Actionsを使用せず、ローカルPCから直接スクリプトを実行することも可能です。
-その場合は、[セットアップ](#セットアップ)を完了し、PHPがインストールされている必要があります。
+デプロイしたサービスの「Environment」タブで、以下の環境変数を設定します。
 
-- **日次通知の実行**
-  `config/feeds.php` に基づいて新着記事をチェックし、LINEに通知します。
-  ```bash
-  php scripts/run_daily.php
-  ```
+- `LINE_CHANNEL_ACCESS_TOKEN`: LINE Developersコンソールのチャネルアクセストークン。
+- `LINE_CHANNEL_SECRET`: LINE Developersコンソールのチャネルシークレット。
+- `LINE_USER_ID`: 週次サマリーのプッシュ通知を受け取るあなたのLINEユーザーID。
+- `AI_API_KEY`: （任意）Google AI Studioで取得したGemini APIキー。
+- `SCRAPING_API_KEY`: （任意）記事のスクレイピングにBrowserless.ioなどを使う場合のAPIキー。
 
-- **週次通知の実行**
-  `data/weekly_articles.json` をもとに週次の人気記事を通知します。
-  ```bash
-  php scripts/run_weekly.php
-  ```
+### 4. LINE Botの設定
 
-- **リッチメニューの作成・更新**
-  LINEのチャット画面に表示されるリッチメニューを作成・更新します。
-  ```bash
-  php scripts/create_rich_menu.php
-  ```
+1.  [LINE Developersコンソール](https://developers.line.biz/console/)の「Messaging API設定」を開きます。
+2.  「Webhook URL」に、Renderで作成したサービスのURLの末尾に `/webhook.php` を付けたものを入力します。
+    - 例: `https://your-service-name.onrender.com/webhook.php`
+3.  「更新」を押し、「検証」ボタンで成功することを確認します。
+4.  「応答メッセージ」機能をオフにし、Webhookからの応答のみが有効になるようにします。
 
-### フィードの管理
+### 5. GitHub Actionsの設定
 
-通知を受け取りたいRSSフィードは `config/feeds.php` で管理されています。
-新しいフィードを追加したり、既存のフィードを変更・削除したりする場合は、このファイルを編集してください。
+GitHub Actionsが記事を収集したり、週次通知を送信したりできるように、GitHubリポジトリにシークレットを設定します。
 
-```php
-// config/feeds.php
+1.  リポジトリの「Settings」>「Secrets and variables」>「Actions」を開きます。
+2.  「New repository secret」ボタンを押し、以下のシークレットを登録します。（値はRenderに設定したものと同じです）
+    - `LINE_CHANNEL_ACCESS_TOKEN`
+    - `LINE_USER_ID`
+    - `AI_API_KEY`
+    - `SCRAPING_API_KEY`
 
-return [
-    [
-        'id' => 'publickey',
-        'url' => 'https://www.publickey1.jp/atom.xml',
-    ],
-    [
-        'id' => 'codezine',
-        'url' => 'https://codezine.jp/rss/new/20/index.xml',
-    ],
-    // ... 他のフィード
-];
-```
+以上でセットアップは完了です。1時間ごとに新着記事が自動で収集され、「最新情報」と送ることで記事を受け取れるようになります。
 
-### 定期実行
+## フィードの管理
 
-このBotはGitHub Actionsによって自動で実行されます。
-
-- **設定ファイル**: `.github/workflows/notify.yml`
-- **スケジュール**: 毎日定時に `scripts/run_daily.php` を実行するように設定されています（cron式で指定）。
-
-```yaml
-# .github/workflows/notify.yml
-name: Notify
-on:
-  schedule:
-    - cron: '0 22 * * *' # UTCの22:00 (JSTの7:00) に毎日実行
-# ...
-```
-
-### ディレクトリ構成
-
-```
-.
-├── .env.example          # 環境変数のサンプル
-├── .github/workflows/    # GitHub Actions ワークフロー
-│   └── notify.yml
-├── config/
-│   └── feeds.php         # 監視対象のRSSフィードリスト
-├── data/                 # 処理データを保存するディレクトリ
-│   ├── last_notified_url_*.txt # 各フィードの最後に通知した記事URL
-│   └── weekly_articles.json    # 週次通知用の記事データ
-├── scripts/              # 実行スクリプト
-│   ├── create_rich_menu.php # リッチメニュー作成
-│   ├── run_daily.php        # 日次通知
-│   └── run_weekly.php       # 週次通知
-├── src/
-│   └── lib.php           # 共通処理をまとめたライブラリ
-└── README.md             # このファイル
-```
+通知対象のRSSフィードは `config/feeds.php` で管理しています。このファイルを編集して、好きなサイトを追加・削除してください。

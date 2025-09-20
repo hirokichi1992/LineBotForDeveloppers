@@ -1,0 +1,251 @@
+{
+    "type": "flex",
+    "altText": "[セキュリティ][Web開発][マルウェア] 【The Hacker News】LastPass Warns of Fake Repositories Infecting macOS with Atomic Infostealer",
+    "contents": {
+        "type": "bubble",
+        "styles": {
+            "header": {
+                "backgroundColor": "#1E2A38"
+            },
+            "body": {
+                "backgroundColor": "#2D3748"
+            },
+            "footer": {
+                "backgroundColor": "#2D3748",
+                "separator": true,
+                "separatorColor": "#4A5568"
+            }
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "[ The Hacker News ]",
+                    "weight": "bold",
+                    "color": "#1DB446",
+                    "size": "sm"
+                }
+            ],
+            "paddingAll": "12px"
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "LastPass Warns of Fake Repositories Infecting macOS with Atomic Infostealer",
+                    "weight": "bold",
+                    "size": "xl",
+                    "wrap": true,
+                    "color": "#FFFFFF"
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#4A5568",
+                            "cornerRadius": "md",
+                            "paddingAll": "6px",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "セキュリティ",
+                                    "color": "#FFFFFF",
+                                    "size": "xs",
+                                    "weight": "bold",
+                                    "align": "center"
+                                }
+                            ],
+                            "action": {
+                                "type": "message",
+                                "label": "セキュリティ",
+                                "text": "セキュリティに関する記事"
+                            }
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#4A5568",
+                            "cornerRadius": "md",
+                            "paddingAll": "6px",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "Web開発",
+                                    "color": "#FFFFFF",
+                                    "size": "xs",
+                                    "weight": "bold",
+                                    "align": "center"
+                                }
+                            ],
+                            "action": {
+                                "type": "message",
+                                "label": "Web開発",
+                                "text": "Web開発に関する記事"
+                            }
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#4A5568",
+                            "cornerRadius": "md",
+                            "paddingAll": "6px",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "マルウェア",
+                                    "color": "#FFFFFF",
+                                    "size": "xs",
+                                    "weight": "bold",
+                                    "align": "center"
+                                }
+                            ],
+                            "action": {
+                                "type": "message",
+                                "label": "マルウェア",
+                                "text": "マルウェアに関する記事"
+                            }
+                        }
+                    ],
+                    "spacing": "sm",
+                    "margin": "lg"
+                },
+                {
+                    "type": "text",
+                    "text": "2025\/09\/20 07:07",
+                    "wrap": true,
+                    "size": "sm",
+                    "color": "#A0AEC0",
+                    "margin": "lg"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "Summary",
+                                    "color": "#A0AEC0",
+                                    "size": "sm",
+                                    "flex": 0
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "text": "LastPassが、macOSユーザーを標的とした情報窃取マルウェア「Atomic Infostealer」を拡散する偽のGitHubリポジトリについて警告を発しています。SEOポイズニングを利用し、BingやGoogleの検索結果上位に悪意のあるGitHubサイトへのリンクを表示させ、LastPassなどの正規ツールを装ってマルウェアをインストールさせようとします。対策として、公式チャネルからのソフトウェアダウンロードを徹底することが重要です。",
+                            "wrap": true,
+                            "size": "sm",
+                            "margin": "md",
+                            "color": "#E2E8F0"
+                        }
+                    ]
+                },
+                {
+                    "type": "separator",
+                    "margin": "xl"
+                },
+                {
+                    "type": "text",
+                    "text": "今日のテッククイズ💡",
+                    "weight": "bold",
+                    "size": "md",
+                    "margin": "lg",
+                    "color": "#1DB446"
+                },
+                {
+                    "type": "text",
+                    "text": "Atomic Infostealerの拡散に利用されている手法は何ですか？",
+                    "wrap": true,
+                    "size": "sm",
+                    "color": "#E2E8F0",
+                    "margin": "md"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "margin": "md",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "action": {
+                                "type": "postback",
+                                "label": "ソーシャルエンジニアリング",
+                                "data": "action=quiz_answer&is_correct=0&correct_answer=SEO%E3%83%9D%E3%82%A4%E3%82%BA%E3%83%8B%E3%83%B3%E3%82%B0",
+                                "displayText": "ソーシャルエンジニアリング"
+                            },
+                            "style": "secondary",
+                            "height": "sm",
+                            "margin": "sm"
+                        },
+                        {
+                            "type": "button",
+                            "action": {
+                                "type": "postback",
+                                "label": "SEOポイズニング",
+                                "data": "action=quiz_answer&is_correct=1&correct_answer=SEO%E3%83%9D%E3%82%A4%E3%82%BA%E3%83%8B%E3%83%B3%E3%82%B0",
+                                "displayText": "SEOポイズニング"
+                            },
+                            "style": "secondary",
+                            "height": "sm",
+                            "margin": "sm"
+                        },
+                        {
+                            "type": "button",
+                            "action": {
+                                "type": "postback",
+                                "label": "ブルートフォースアタック",
+                                "data": "action=quiz_answer&is_correct=0&correct_answer=SEO%E3%83%9D%E3%82%A4%E3%82%BA%E3%83%8B%E3%83%B3%E3%82%B0",
+                                "displayText": "ブルートフォースアタック"
+                            },
+                            "style": "secondary",
+                            "height": "sm",
+                            "margin": "sm"
+                        }
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [
+                {
+                    "type": "button",
+                    "action": {
+                        "type": "uri",
+                        "label": "記事を読む",
+                        "uri": "https:\/\/thehackernews.com\/2025\/09\/lastpass-warns-of-fake-repositories.html"
+                    },
+                    "style": "primary",
+                    "height": "sm",
+                    "color": "#4A5568"
+                }
+            ],
+            "flex": 0
+        },
+        "hero": {
+            "type": "image",
+            "url": "https:\/\/www.clipartmax.com\/png\/middle\/419-4197780_hackernews-black-hacker-news-logo-transparent.png",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        }
+    }
+}

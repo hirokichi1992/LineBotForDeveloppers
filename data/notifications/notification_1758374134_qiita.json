@@ -1,0 +1,251 @@
+{
+    "type": "flex",
+    "altText": "[AI][Python][セキュリティ] 【Qiita トレンド】【Python】生成AIがこのコード書いたら気をつけろ！ - 事故らないためのチェックリスト",
+    "contents": {
+        "type": "bubble",
+        "styles": {
+            "header": {
+                "backgroundColor": "#1E2A38"
+            },
+            "body": {
+                "backgroundColor": "#2D3748"
+            },
+            "footer": {
+                "backgroundColor": "#2D3748",
+                "separator": true,
+                "separatorColor": "#4A5568"
+            }
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "[ Qiita トレンド ]",
+                    "weight": "bold",
+                    "color": "#1DB446",
+                    "size": "sm"
+                }
+            ],
+            "paddingAll": "12px"
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "【Python】生成AIがこのコード書いたら気をつけろ！ - 事故らないためのチェックリスト",
+                    "weight": "bold",
+                    "size": "xl",
+                    "wrap": true,
+                    "color": "#FFFFFF"
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#4A5568",
+                            "cornerRadius": "md",
+                            "paddingAll": "6px",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "AI",
+                                    "color": "#FFFFFF",
+                                    "size": "xs",
+                                    "weight": "bold",
+                                    "align": "center"
+                                }
+                            ],
+                            "action": {
+                                "type": "message",
+                                "label": "AI",
+                                "text": "AIに関する記事"
+                            }
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#4A5568",
+                            "cornerRadius": "md",
+                            "paddingAll": "6px",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "Python",
+                                    "color": "#FFFFFF",
+                                    "size": "xs",
+                                    "weight": "bold",
+                                    "align": "center"
+                                }
+                            ],
+                            "action": {
+                                "type": "message",
+                                "label": "Python",
+                                "text": "Pythonに関する記事"
+                            }
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#4A5568",
+                            "cornerRadius": "md",
+                            "paddingAll": "6px",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "セキュリティ",
+                                    "color": "#FFFFFF",
+                                    "size": "xs",
+                                    "weight": "bold",
+                                    "align": "center"
+                                }
+                            ],
+                            "action": {
+                                "type": "message",
+                                "label": "セキュリティ",
+                                "text": "セキュリティに関する記事"
+                            }
+                        }
+                    ],
+                    "spacing": "sm",
+                    "margin": "lg"
+                },
+                {
+                    "type": "text",
+                    "text": "2025\/09\/20 02:50",
+                    "wrap": true,
+                    "size": "sm",
+                    "color": "#A0AEC0",
+                    "margin": "lg"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "Summary",
+                                    "color": "#A0AEC0",
+                                    "size": "sm",
+                                    "flex": 0
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "text": "生成AIが生成するPythonコードには、セキュリティ、パフォーマンス、保守性の面で問題があるコードが含まれる可能性がある。この記事では、Webエンジニアが注意すべき15個の危険なパターンと、その修正方法を具体的に解説する。ログ設定、例外処理、セキュリティAPIの使用、SQLインジェクション対策、タイムゾーン処理、浮動小数点数比較、非同期処理、リソース管理、設定管理など、実務で役立つ提案が満載。",
+                            "wrap": true,
+                            "size": "sm",
+                            "margin": "md",
+                            "color": "#E2E8F0"
+                        }
+                    ]
+                },
+                {
+                    "type": "separator",
+                    "margin": "xl"
+                },
+                {
+                    "type": "text",
+                    "text": "今日のテッククイズ💡",
+                    "weight": "bold",
+                    "size": "md",
+                    "margin": "lg",
+                    "color": "#1DB446"
+                },
+                {
+                    "type": "text",
+                    "text": "生成AIが生成するPythonコードで、SQLインジェクションを防ぐための対策として最も適切なものはどれか？",
+                    "wrap": true,
+                    "size": "sm",
+                    "color": "#E2E8F0",
+                    "margin": "md"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "margin": "md",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "action": {
+                                "type": "postback",
+                                "label": "SQL文を文字列連結で構築する",
+                                "data": "action=quiz_answer&is_correct=0&correct_answer=%E3%83%97%E3%83%AC%E3%83%BC%E3%82%B9%E3%83%9B%E3%83%AB%E3%83%80%E3%83%BC%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%80%81%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E3%82%A8%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%97%E3%81%99%E3%82%8B",
+                                "displayText": "SQL文を文字列連結で構築する"
+                            },
+                            "style": "secondary",
+                            "height": "sm",
+                            "margin": "sm"
+                        },
+                        {
+                            "type": "button",
+                            "action": {
+                                "type": "postback",
+                                "label": "プレースホルダーを使用し、パラメータをエスケープする",
+                                "data": "action=quiz_answer&is_correct=1&correct_answer=%E3%83%97%E3%83%AC%E3%83%BC%E3%82%B9%E3%83%9B%E3%83%AB%E3%83%80%E3%83%BC%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%80%81%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E3%82%A8%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%97%E3%81%99%E3%82%8B",
+                                "displayText": "プレースホルダーを使用し、パラメータをエスケープする"
+                            },
+                            "style": "secondary",
+                            "height": "sm",
+                            "margin": "sm"
+                        },
+                        {
+                            "type": "button",
+                            "action": {
+                                "type": "postback",
+                                "label": "全てのSQL文をログに出力する",
+                                "data": "action=quiz_answer&is_correct=0&correct_answer=%E3%83%97%E3%83%AC%E3%83%BC%E3%82%B9%E3%83%9B%E3%83%AB%E3%83%80%E3%83%BC%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%80%81%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E3%82%A8%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%97%E3%81%99%E3%82%8B",
+                                "displayText": "全てのSQL文をログに出力する"
+                            },
+                            "style": "secondary",
+                            "height": "sm",
+                            "margin": "sm"
+                        }
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [
+                {
+                    "type": "button",
+                    "action": {
+                        "type": "uri",
+                        "label": "記事を読む",
+                        "uri": "https:\/\/qiita.com\/Sakai_path\/items\/d4ec1e848672033ca256?utm_campaign=popular_items&utm_medium=feed&utm_source=popular_items"
+                    },
+                    "style": "primary",
+                    "height": "sm",
+                    "color": "#4A5568"
+                }
+            ],
+            "flex": 0
+        },
+        "hero": {
+            "type": "image",
+            "url": "https:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/7\/72\/Qiita_logo.svg\/512px-Qiita_logo.svg.png",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        }
+    }
+}

@@ -802,5 +802,17 @@
         ],
         "source": "Zenn トレンド記事",
         "date": "Fri, 19 Sep 2025 15:40:14 GMT"
+    },
+    {
+        "title": "SnowflakeとDatabricksの機能をそれぞれ見てみる",
+        "url": "https:\/\/zenn.dev\/kou_zenn\/articles\/50bc3151ef2326",
+        "summary": "SnowflakeとDatabricksは、それぞれクラウドベースのデータウェアハウスとデータ分析・AIプラットフォームです。Snowflakeは高速なデータ集計とガバナンスに優れ、DatabricksはApache Sparkを基盤とし、データエンジニアリングから機械学習までを統合的に実行できます。両者はデータ形式、ストレージ方式、外部データ接続、データ管理、データ共有において異なる特徴を持ち、企業のニーズに合わせて選択または併用できます。",
+        "tags": [
+            "Web開発",
+            "AI",
+            "クラウド"
+        ],
+        "source": "Zenn トレンド記事",
+        "date": "Sat, 20 Sep 2025 12:11:41 GMT"
     }
 ]

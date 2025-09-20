@@ -1,4 +1,5 @@
 <?php
+error_log('[DEBUG] webhook.php execution started.');
 
 require_once __DIR__ . '/src/lib.php';
 

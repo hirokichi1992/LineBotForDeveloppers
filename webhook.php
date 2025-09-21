@@ -128,7 +128,7 @@ function handleTextMessage(array $event, string $channelAccessToken): void
         mkdir($archiveDir, 0777, true);
     }
 
-    $parts = preg_split('/\s+/', $userMessage, 2);
+    $parts = preg_split('/[\s　]+/u', $userMessage, 2);
     $command = $parts[0] ?? '';
     $keyword = $parts[1] ?? '';
 
@@ -166,15 +166,33 @@ function searchAndReply(string $replyToken, string $channelAccessToken, string $
     foreach ($allFiles as $file) {
         $content = file_get_contents($file);
         $data = json_decode($content, true);
-        if (!$data || !isset($data['contents'])) continue;
+        if (!$data || !isset($data['contents']['body']['contents'])) continue;
 
-        $title = $data['contents']['header']['contents'][0]['text'] ?? '';
-        $summary = $data['contents']['body']['contents'][0]['contents'][0]['text'] ?? '';
-        $tags = array_map(fn($tag) => $tag['contents'][0]['text'], $data['contents']['footer']['contents'][0]['contents'] ?? []);
-        $tagString = implode(' ', $tags);
+        $bodyContents = $data['contents']['body']['contents'];
 
+        // 1. Extract Title
+        $title = $bodyContents[0]['text'] ?? '';
+
+        // 2. Extract Tags
+        $tagString = '';
+        if (isset($bodyContents[1]['contents']) && is_array($bodyContents[1]['contents'])) {
+            $tags = array_map(fn($tagBox) => $tagBox['contents'][0]['text'] ?? '', $bodyContents[1]['contents']);
+            $tagString = implode(' ', $tags);
+        }
+
+        // 3. Extract Summary
+        $summary = '';
+        foreach ($bodyContents as $box) {
+            if (isset($box['contents'][0]['text']) && $box['contents'][0]['text'] === 'Summary') {
+                $summary = $box['contents'][1]['text'] ?? '';
+                break;
+            }
+        }
+
+        // Search keyword in title, tags, or summary
         if (mb_stripos($title, $keyword) !== false || mb_stripos($summary, $keyword) !== false || mb_stripos($tagString, $keyword) !== false) {
-            $foundBubbles[] = $data['contents'];
+            // Use filename as key for sorting
+            $foundBubbles[basename($file)] = $data['contents'];
         }
     }
 
@@ -184,8 +202,8 @@ function searchAndReply(string $replyToken, string $channelAccessToken, string $
     }
 
     // Sort by filename (timestamp) descending to show newest first
-    rsort($foundBubbles, SORT_REGULAR);
-    $bubblesToSend = array_slice($foundBubbles, 0, 10);
+    krsort($foundBubbles);
+    $bubblesToSend = array_slice(array_values($foundBubbles), 0, 10);
 
     $carouselMessage = createCarouselMessage($bubblesToSend, '検索結果');
     replyLineMessage($channelAccessToken, $replyToken, [$carouselMessage]);

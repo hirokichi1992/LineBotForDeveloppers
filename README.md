@@ -98,7 +98,7 @@ graph TD
     subgraph Article Collection & Analysis
         E[GitHub Actions] -- "定期実行トリガー" --> F(LINE Bot run_daily.php)
         F -- "RSSフィード取得" --> G[外部RSSフィード]
-        F -- "記事内容スクレイピング" --> H[Browserless.io (Optional)]
+        F -- "記事内容スクレイピング" --> H[Browserless.io]
         F -- "AI分析 (要約/タグ/クイズ)" --> I[Google Gemini API]
         F -- "記事データ保存" --> D
     end

@@ -1,87 +1,115 @@
 # LINE Bot for Developers
 
-開発者向けの技術ブログやニュースの新着記事をLINEで受け取れるBotです。
+## 概要
 
-![richmenu](https://github.com/user-attachments/assets/16ac7599-8229-409b-95b0-f74b1a0a7789)
+このプロジェクトは、開発者向けの技術記事をLINEで自動配信するBotです。RSSフィードから最新記事を収集し、Gemini APIによるAI分析（要約、タグ付け、クイズ生成）を行い、リッチなFlex Messageとしてユーザーに届けます。記事データはPostgreSQLデータベースで管理され、未読記事の段階的配信やキーワード検索が可能です。
 
-## 主な機能
+## 機能
 
-- **オンデマンドな記事取得**: トーク画面で「最新情報」と送信すると、その時点での新着記事をカルーセル形式で受け取れます。
-- **毎日の自動記事収集**: GitHub Actionsが1時間ごとに複数の技術系サイトのRSSフィードを巡回し、新着記事を収集・保存します。
-- **週次のサマリー通知**: 週末に、その週に収集した記事のサマリーがプッシュ通知で届きます。
-- **AIによる記事要約とタグ生成**: Google Gemini APIを利用し、記事の要約、関連タグ、三択クイズを自動で生成します。
+-   **RSSフィードからの自動記事収集**: 設定されたRSSフィードから定期的に最新記事を取得します。
+-   **AIによる記事分析**: Gemini APIを利用して、記事の要約、関連タグの抽出、内容に関する三択クイズの生成を行います。
+-   **LINE Flex Message**: 記事のタイトル、要約、タグ、クイズを視覚的に分かりやすい形式で配信します。
+-   **データベースによる記事管理**: 記事データはPostgreSQLデータベースに保存され、効率的に管理されます。
+-   **未読記事の段階的配信**: 「`最新情報`」コマンドで、未読の記事を古いものから最大10件ずつ配信します。配信済みの記事はアーカイブされます。
+-   **キーワード検索**: 「`最新情報 [キーワード]`」コマンドで、過去に配信されたすべての記事（未読・アーカイブ済み含む）からキーワードに一致する記事を検索し、新しいものから最大10件表示します。
+-   **クイズ機能**: 記事内容に関するクイズにLINEのPostbackアクションで回答できます。
 
-## アーキテクチャ
+## 技術スタック
 
-このBotは、LINEの無料API上限を回避しつつ、柔軟な通知を実現するために、オンデマンドな応答（プル型）と週次のプッシュ通知を組み合わせたハイブリッド構成になっています。
+-   **言語**: PHP
+-   **LINE API**: LINE Messaging API
+-   **AI**: Google Gemini API
+-   **データベース**: PostgreSQL
+-   **ホスティング**: Render
+-   **定期実行**: GitHub Actions
+-   **スクレイピング**: Browserless.io (オプション)
 
-1.  **記事の収集 (GitHub Actions)**
-    - `.github/workflows/notify.yml` に基づき、1時間ごとに `scripts/run_daily.php` が実行されます。
-    - スクリプトは `config/feeds.php` のRSSフィードをチェックし、新着記事を見つけます。
-    - 新着記事ごとに、AIで要約・タグ・クイズを生成し、LINEのメッセージ配信用JSONファイルとして `data/notifications/` ディレクトリに保存します。
-    - 週次サマリーのため、記事情報を `data/weekly_articles.json` にも追記します。
-    - 最後に、生成されたデータファイルをリポジトリにコミットします。
+## セットアップ
 
-2.  **記事の配信 (Render + Webhook)**
-    - `webhook.php` が、RenderのようなPaaS上でWebサービスとして常時稼働します。
-    - ユーザーがLINEで「最新情報」と送信すると、LINEプラットフォームから `webhook.php` にリクエストが送られます。
-    - `webhook.php` は `data/notifications/` に保存されているJSONファイルをすべて読み込み、カルーセル形式のFlex Messageを組み立てて、応答メッセージとして送信します。
-    - 送信後、処理済みのJSONファイルは削除されます。
+### 1. Renderでのサービス準備
 
-3.  **週次サマリー (GitHub Actions)**
-    - 週末に、GitHub Actionsが `scripts/run_weekly.php` を実行します。
-    - このスクリプトは `data/weekly_articles.json` を読み込み、要約メッセージをLINEのPush API経由で送信します。
+1.  **Web Serviceのデプロイ**: このリポジトリをRenderにデプロイし、PHPのWeb Serviceとして設定します。
+2.  **PostgreSQLデータベースの作成**: RenderダッシュボードでPostgreSQLデータベースをFreeプランで作成します。
+3.  **データベースの接続**: 作成したPostgreSQLデータベースを、BotのWeb Serviceの「Environment」設定で`DATABASE_URL`としてリンクします。
 
-## セットアップ手順
+### 2. 環境変数の設定
 
-### 1. リポジトリの準備
+BotのWeb Serviceの「Environment」設定画面で、以下の環境変数を設定してください。
 
-このリポジトリを自身のGitHubアカウントにフォーク（Fork）またはクローンします。
+-   `LINE_CHANNEL_ACCESS_TOKEN`: LINE Developersで取得したチャネルアクセストークン
+-   `LINE_CHANNEL_SECRET`: LINE Developersで取得したチャネルシークレット
+-   `AI_API_KEY`: Google Gemini APIのAPIキー
+-   `SCRAPING_API_KEY`: Browserless.ioのAPIキー（記事の本文取得に必要、任意）
+-   `DATABASE_URL`: Renderが自動で設定するPostgreSQLの接続URL（RenderのUIでDBをリンクすると自動設定されます）
 
-### 2. アプリケーションのデプロイ
+### 3. フィード設定
 
-RenderのようなPaaSにアプリケーションをデプロイします。以下はRenderでの手順です。
+`config/feeds.php`ファイルを編集し、Botが記事を収集するRSSフィードのURLと表示名を定義します。
 
-1.  RenderにGitHubアカウントでサインアップします。
-2.  ダッシュボードで「New +」>「Web Service」を選択し、このリポジトリを接続します。
-3.  以下の通り設定します。
-    - **Environment**: `Docker` （リポジトリ内の`Dockerfile`が自動で使われます）
-    - **Name**: 好きな名前（例: `line-bot-developpers`）
-    - **Start Command**: 空欄のままにします。
-    - **Instance Type**: `Free`
-4.  「Create Web Service」をクリックしてデプロイします。
+```php
+<?php
+// config/feeds.php
 
-### 3. 環境変数の設定
+return [
+    'tech' => [
+        'name' => 'tech', // 内部識別名
+        'label' => 'Tech', // LINEで表示されるソース名
+        'url' => 'https://tech.example.com/rss',
+        'default_image_url' => 'https://example.com/default_tech_image.png', // オプション
+    ],
+    // 他のフィードも同様に追加
+];
+```
 
-デプロイしたサービスの「Environment」タブで、以下の環境変数を設定します。
+### 4. GitHub Actionsの設定
 
-- `LINE_CHANNEL_ACCESS_TOKEN`: LINE Developersコンソールのチャネルアクセストークン。
-- `LINE_CHANNEL_SECRET`: LINE Developersコンソールのチャネルシークレット。
-- `LINE_USER_ID`: 週次サマリーのプッシュ通知を受け取るあなたのLINEユーザーID。
-- `AI_API_KEY`: （任意）Google AI Studioで取得したGemini APIキー。
-- `SCRAPING_API_KEY`: （任意）記事のスクレイピングにBrowserless.ioなどを使う場合のAPIキー。
+`.github/workflows/notify.yml`ファイルを編集し、`scripts/run_daily.php`が定期的に実行されるように設定します。これにより、記事の自動収集とデータベースへの保存が行われます。
 
-### 4. LINE Botの設定
+### 5. 初期データ投入
 
-1.  [LINE Developersコンソール](https://developers.line.biz/console/)の「Messaging API設定」を開きます。
-2.  「Webhook URL」に、Renderで作成したサービスのURLの末尾に `/webhook.php` を付けたものを入力します。
-    - 例: `https://your-service-name.onrender.com/webhook.php`
-3.  「更新」を押し、「検証」ボタンで成功することを確認します。
-4.  「応答メッセージ」機能をオフにし、Webhookからの応答のみが有効になるようにします。
+`run_daily.php`が一度実行されると、データベースに`articles`テーブルが自動的に作成され、記事データが投入され始めます。手動で初回実行したい場合は、RenderのShellから`php scripts/run_daily.php`を実行することも可能です（RenderのShellは有料機能です）。
 
-### 5. GitHub Actionsの設定
+## 使い方
 
-GitHub Actionsが記事を収集したり、週次通知を送信したりできるように、GitHubリポジトリにシークレットを設定します。
+LINE Botに以下のメッセージを送信してください。
 
-1.  リポジトリの「Settings」>「Secrets and variables」>「Actions」を開きます。
-2.  「New repository secret」ボタンを押し、以下のシークレットを登録します。（値はRenderに設定したものと同じです）
-    - `LINE_CHANNEL_ACCESS_TOKEN`
-    - `LINE_USER_ID`
-    - `AI_API_KEY`
-    - `SCRAPING_API_KEY`
+-   `最新情報`: 未読の最新記事を最大10件表示します。続けて送信すると次の10件が表示されます。
+-   `最新情報 [キーワード]`: キーワードに一致する記事を検索し、新しいものから最大10件表示します。（例: `最新情報 PHP`）
+-   クイズの回答: クイズが表示された場合、選択肢のボタンをタップして回答します。
 
-以上でセットアップは完了です。1時間ごとに新着記事が自動で収集され、「最新情報」と送ることで記事を受け取れるようになります。
+## システムアーキテクチャのイメージ図
 
-## フィードの管理
+以下は、このBotの主要なコンポーネントとデータの流れを示すイメージ図の構成案です。Mermaidなどのツールで図に変換していただくと、より分かりやすくなります。
 
-通知対象のRSSフィードは `config/feeds.php` で管理しています。このファイルを編集して、好きなサイトを追加・削除してください。
+```mermaid
+graph TD
+    subgraph User Interaction
+        A[LINE User] -- "メッセージ送信 (最新情報 / 最新情報 [キーワード])" --> B(LINE Platform)
+        B -- "Webhook Event" --> C(LINE Bot Web Service)
+        C -- "Flex Message返信" --> B
+        B -- "メッセージ受信" --> A
+    end
+
+    subgraph Data Processing & Storage
+        C -- "DB接続" --> D(PostgreSQL Database)
+        D -- "記事データ保存/取得" --> C
+    end
+
+    subgraph Article Collection & Analysis
+        E[GitHub Actions] -- "定期実行トリガー" --> F(LINE Bot run_daily.php)
+        F -- "RSSフィード取得" --> G[外部RSSフィード]
+        F -- "記事内容スクレイピング" --> H[Browserless.io (Optional)]
+        F -- "AI分析 (要約/タグ/クイズ)" --> I[Google Gemini API]
+        F -- "記事データ保存" --> D
+    end
+
+    style A fill:#fff,stroke:#333,stroke-width:2px
+    style B fill:#00B900,stroke:#333,stroke-width:2px,color:#fff
+    style C fill:#6495ED,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#FFD700,stroke:#333,stroke-width:2px
+    style E fill:#9370DB,stroke:#333,stroke-width:2px,color:#fff
+    style F fill:#6495ED,stroke:#333,stroke-width:2px,color:#fff
+    style G fill:#fff,stroke:#333,stroke-width:2px
+    style H fill:#fff,stroke:#333,stroke-width:2px
+    style I fill:#fff,stroke:#333,stroke-width:2px
+```

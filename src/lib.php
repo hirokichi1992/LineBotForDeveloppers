@@ -235,3 +235,37 @@ function replyLineMessage(string $channelAccessToken, string $replyToken, array 
         return false;
     }
 }
+
+/**
+ * DATABASE_URLをパースしてPDOデータベース接続を返す
+ * @return PDO
+ * @throws Exception
+ */
+function getDbConnection(): PDO
+{
+    static $pdo = null;
+    if ($pdo) {
+        return $pdo;
+    }
+
+    $dbUrl = getenv('DATABASE_URL');
+    if (empty($dbUrl)) {
+        throw new Exception('DATABASE_URL is not set.');
+    }
+
+    $dbConfig = parse_url($dbUrl);
+    $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s',
+        $dbConfig['host'],
+        $dbConfig['port'],
+        ltrim($dbConfig['path'], '/'),
+        $dbConfig['user'],
+        $dbConfig['pass']
+    );
+
+    try {
+        $pdo = new PDO($dsn, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        return $pdo;
+    } catch (PDOException $e) {
+        throw new Exception('Failed to connect to database: ' . $e->getMessage());
+    }
+}

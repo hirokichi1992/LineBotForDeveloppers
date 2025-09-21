@@ -113,6 +113,7 @@ function handlePostbackEvent(array $event, string $channelAccessToken): void
 
 /**
  * Handles text message events.
+ * - If the message is "デバッグ" or "debug", it performs a system check and replies with the results.
  * - If the message is "最新情報", it sends unread notifications and archives them.
  * - If the message is "最新情報 [keyword]", it searches all notifications for the keyword.
  */
@@ -122,7 +123,63 @@ function handleTextMessage(array $event, string $channelAccessToken): void
     $userMessage = trim($event['message']['text']);
     error_log("[INFO] Received text message: " . $userMessage);
 
-    // Define the archive directory and ensure it exists
+    // --- Debug Mode ---
+    if ($userMessage === 'デバッグ' || $userMessage === 'debug') {
+        $notifDir = NOTIFICATIONS_DIR;
+        $archiveDir = ROOT_PATH . '/data/archived_notifications';
+
+        // Ensure archive directory exists for the test
+        if (!is_dir($archiveDir)) {
+            mkdir($archiveDir, 0777, true);
+        }
+
+        $debugInfo = "--- Gemini Bot Debug Info ---\n";
+        $debugInfo .= "Notification Dir: {$notifDir}\n";
+        $debugInfo .= "Archive Dir: {$archiveDir}\n\n";
+
+        $debugInfo .= "[Directory Status]\n";
+        $debugInfo .= "Notif Dir Exists: " . (is_dir($notifDir) ? 'Yes' : 'No') . "\n";
+        $debugInfo .= "Notif Dir Readable: " . (is_readable($notifDir) ? 'Yes' : 'No') . "\n";
+        $debugInfo .= "Notif Dir Writable: " . (is_writable($notifDir) ? 'Yes' : 'No') . "\n";
+        $debugInfo .= "Archive Dir Exists: " . (is_dir($archiveDir) ? 'Yes' : 'No') . "\n";
+        $debugInfo .= "Archive Dir Readable: " . (is_readable($archiveDir) ? 'Yes' : 'No') . "\n";
+        $debugInfo .= "Archive Dir Writable: " . (is_writable($archiveDir) ? 'Yes' : 'No') . "\n\n";
+
+        $debugInfo .= "[File Count]\n";
+        $notifFiles = glob($notifDir . '/*.json') ?: [];
+        $archiveFiles = glob($archiveDir . '/*.json') ?: [];
+        $debugInfo .= "Unread files: " . count($notifFiles) . "\n";
+        $debugInfo .= "Archived files: " . count($archiveFiles) . "\n\n";
+
+        $debugInfo .= "[Rename Test]\n";
+        if (!empty($notifFiles)) {
+            $testFile = $notifFiles[0];
+            $testFileName = basename($testFile);
+            $destination = $archiveDir . '/' . $testFileName;
+            $debugInfo .= "Attempting to move: {$testFileName}\n";
+
+            $renameResult = rename($testFile, $destination);
+
+            if ($renameResult) {
+                $debugInfo .= "-> Success (true)\n";
+                $moveBackResult = rename($destination, $testFile);
+                $debugInfo .= "-> Moved back: " . ($moveBackResult ? 'Success' : 'Failed') . "\n";
+            } else {
+                $debugInfo .= "-> Failed (false)\n";
+                $lastError = error_get_last();
+                if ($lastError) {
+                    $debugInfo .= "-> Last Error: " . $lastError['message'] . "\n";
+                }
+            }
+        } else {
+            $debugInfo .= "No files in notification dir to test rename.\n";
+        }
+
+        replyLineMessage($channelAccessToken, $replyToken, [['type' => 'text', 'text' => $debugInfo]]);
+        return;
+    }
+
+    // --- Normal Operation ---
     $archiveDir = ROOT_PATH . '/data/archived_notifications';
     if (!is_dir($archiveDir)) {
         mkdir($archiveDir, 0777, true);
@@ -137,12 +194,9 @@ function handleTextMessage(array $event, string $channelAccessToken): void
         return;
     }
 
-    // Mode: Keyword Search
     if (!empty($keyword)) {
         searchAndReply($replyToken, $channelAccessToken, $keyword, $archiveDir);
-    }
-    // Mode: Default (send unread)
-    else {
+    } else {
         sendUnreadAndArchive($replyToken, $channelAccessToken, $archiveDir);
     }
 }

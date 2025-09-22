@@ -152,8 +152,14 @@ function createFlexBubble(string $label, string $title, string $url, string $pub
         $quizOptions = [];
         foreach ($quizData['options'] as $index => $option) {
             $isCorrect = ($index === $quizData['correct_index']);
-            $postbackData = http_build_query(['action' => 'quiz_answer', 'is_correct' => $isCorrect ? '1' : '0', 'correct_answer' => $quizData['options'][$quizData['correct_index']]]);
-            $quizOptions[] = ['type' => 'button', 'action' => ['type' => 'postback', 'label' => $option, 'data' => $postbackData, 'displayText' => $option], 'style' => 'secondary', 'height' => 'sm', 'margin' => 'sm'];
+            
+            // LINE APIの制限に対応するため、ラベルとデータを切り詰める
+            $label = mb_substr($option, 0, 40);
+            $correctAnswerText = $quizData['options'][$quizData['correct_index']];
+            $truncatedCorrectAnswer = mb_substr($correctAnswerText, 0, 100);
+
+            $postbackData = http_build_query(['action' => 'quiz_answer', 'is_correct' => $isCorrect ? '1' : '0', 'correct_answer' => $truncatedCorrectAnswer]);
+            $quizOptions[] = ['type' => 'button', 'action' => ['type' => 'postback', 'label' => $label, 'data' => $postbackData, 'displayText' => $label], 'style' => 'secondary', 'height' => 'sm', 'margin' => 'sm'];
         }
         $bodyContents[] = ['type' => 'box', 'layout' => 'vertical', 'spacing' => 'sm', 'margin' => 'md', 'contents' => $quizOptions];
     }

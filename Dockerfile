@@ -6,9 +6,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libcurl4-openssl-dev \
     libonig-dev \
+    libpq-dev \
     && docker-php-ext-install \
     curl \
     mbstring \
+    pdo_pgsql \
     simplexml \
     && rm -rf /var/lib/apt/lists/*
 

@@ -254,6 +254,10 @@ function getDbConnection(): PDO
     }
 
     $dbConfig = parse_url($dbUrl);
+
+    if (!isset($dbConfig['port'])) {
+        $dbConfig['port'] = 5432; // Default PostgreSQL port
+    }
     $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s;sslmode=require',
         $dbConfig['host'],
         $dbConfig['port'],

@@ -131,7 +131,7 @@ function handleTextMessage(array $event, string $channelAccessToken): void
             $stmt = $pdo->prepare(
                 "SELECT id, flex_message_json FROM articles 
                  WHERE is_archived = false 
-                 ORDER BY published_at ASC LIMIT 10"
+                 ORDER BY published_at DESC LIMIT 10"
             );
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

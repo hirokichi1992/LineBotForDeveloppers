@@ -254,7 +254,7 @@ function getDbConnection(): PDO
     }
 
     $dbConfig = parse_url($dbUrl);
-    $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s',
+    $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s;sslmode=require',
         $dbConfig['host'],
         $dbConfig['port'],
         ltrim($dbConfig['path'], '/'),

@@ -30,6 +30,17 @@ if (!file_exists($richMenuImagePath)) {
     die("[ERROR] richmenu.png not found in the project root directory.\n");
 }
 
+// --- DIAGNOSTIC STEP ---
+$fileSize = filesize($richMenuImagePath);
+$fileSizeInKB = round($fileSize / 1024, 2);
+echo "[INFO] Found richmenu.png. File size: {$fileSizeInKB} KB.\n";
+
+if ($fileSize > 1048576) { // 1MB in bytes
+    die("[ERROR] richmenu.png is larger than the 1MB limit.\n");
+}
+// --- END DIAGNOSTIC STEP ---
+
+
 // ----------------------------------------------------------------------------
 // 1. Create Rich Menu Object
 // ----------------------------------------------------------------------------

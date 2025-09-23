@@ -156,7 +156,7 @@ function createFlexBubble(string $label, string $title, string $url, string $pub
             // LINE APIの制限に対応するため、ラベルとデータを切り詰める
             $label = mb_substr($option, 0, 40);
             $correctAnswerText = $quizData['options'][$quizData['correct_index']];
-            $truncatedCorrectAnswer = mb_substr($correctAnswerText, 0, 100);
+            $truncatedCorrectAnswer = mb_substr($correctAnswerText, 0, 30);
 
             $postbackData = http_build_query(['action' => 'quiz_answer', 'is_correct' => $isCorrect ? '1' : '0', 'correct_answer' => $truncatedCorrectAnswer]);
             $quizOptions[] = ['type' => 'button', 'action' => ['type' => 'postback', 'label' => $label, 'data' => $postbackData, 'displayText' => $label], 'style' => 'secondary', 'height' => 'sm', 'margin' => 'sm'];

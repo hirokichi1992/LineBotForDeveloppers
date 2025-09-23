@@ -161,7 +161,7 @@ function handleTextMessage(array $event, string $channelAccessToken): void
                                 if (isset($button['action']['data'])) {
                                     parse_str($button['action']['data'], $postbackData);
                                     if (isset($postbackData['correct_answer'])) {
-                                        $postbackData['correct_answer'] = mb_substr($postbackData['correct_answer'], 0, 100);
+                                        $postbackData['correct_answer'] = mb_substr($postbackData['correct_answer'], 0, 30);
                                         $button['action']['data'] = http_build_query($postbackData);
                                     }
                                 }

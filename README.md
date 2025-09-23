@@ -138,20 +138,20 @@ return [
 ```mermaid
 graph TD
     subgraph "User Interaction (LINE)"
-        A[<img src='https://seeklogo.com/images/L/line-logo-3E80503412-seeklogo.com.png' width='30' /><br>LINE User]
-        A -- "1. `最新情報`と送信" --> B(LINE Platform);
-        B -- "2. Webhook" --> C{<img src='https://render.com/images/logo-wordmark.svg' width='80' /><br>Web Service<br>(webhook.php)};
-        C -- "3. 記事データを要求" --> D[(<img src='https://www.postgresql.org/media/img/about/press/elephant.png' width='25' /><br>PostgreSQL DB)];
+        A["LINE User"]
+        A -- "1. `最新情報`と送信" --> B("LINE Platform");
+        B -- "2. Webhook" --> C{"Render Web Service<br>(webhook.php)"};
+        C -- "3. 記事データを要求" --> D[("PostgreSQL DB")];
         D -- "4. 記事データを返却" --> C;
         C -- "5. Flex Messageを返信" --> B;
         B -- "6. メッセージ表示" --> A;
     end
 
     subgraph "Periodic Job (Article Collection)"
-        E[<img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' width='30' /><br>GitHub Actions<br>(Scheduled Cron)] -- "7. `run_daily.php`実行" --> F{PHP Script};
-        F -- "8. RSS取得" --> G[External RSS Feeds];
+        E["GitHub Actions<br>(Scheduled Cron)"] -- "7. `run_daily.php`実行" --> F{"PHP Script"};
+        F -- "8. RSS取得" --> G["External RSS Feeds"];
         G -- "9. 記事URL" --> F;
-        F -- "10. AI要約・クイズ生成を依頼" --> H[<img src='https://www.gstatic.com/images/branding/product/1x/gemini_48dp.png' width='25' /><br>Google Gemini API];
+        F -- "10. AI要約・クイズ生成を依頼" --> H["Google Gemini API"];
         H -- "11. 分析結果" --> F;
         F -- "12. 新しい記事をDBに保存" --> D;
     end

@@ -41,7 +41,7 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array
 
     $imageUrl = '';
     // OGP画像取得の正規表現を修正
-    if (preg_match('/<meta\s+property=(?P<quote>["\])og:image(?P=quote)\s+content=(?P=quote2>["\])(.*?)(?P=quote2)\s*\/?\?>/i', $html, $matches)) {
+    if (preg_match('/<meta\s+property=(["\'])og:image\1\s+content=(["\'])(.*?)\2/i', $html, $matches)) {
         $imageUrl = html_entity_decode($matches[3]);
     }
 

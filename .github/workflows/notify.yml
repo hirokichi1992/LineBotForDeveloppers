@@ -8,12 +8,21 @@ on:
     - cron: '0 12 * * 0'
   # 手動でも実行できるようにする
   workflow_dispatch:
+    inputs:
+      task:
+        description: 'Run a specific task'
+        required: true
+        default: 'daily_notify'
+        type: choice
+        options:
+          - daily_notify
+          - weekly_summary
+          - setup_rich_menu
 
 jobs:
   # 毎時の記事チェックと通知ジョブ
   notify:
-    # cronが '0 * * * *' の場合、または手動実行の場合のみジョブを実行
-    if: github.event.schedule == '0 * * * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 * * * *' || (github.event_name == 'workflow_dispatch' && inputs.task == 'daily_notify')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -41,8 +50,7 @@ jobs:
 
   # 週間サマリーの送信ジョブ
   send_summary:
-    # cronが '0 12 * * 0' の場合のみジョブを実行
-    if: github.event.schedule == '0 12 * * 0'
+    if: github.event.schedule == '0 12 * * 0' || (github.event_name == 'workflow_dispatch' && inputs.task == 'weekly_summary')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -69,9 +77,8 @@ jobs:
 
   # リッチメニュー設定ジョブ
   setup_rich_menu:
+    if: github.event_name == 'workflow_dispatch' && inputs.task == 'setup_rich_menu'
     runs-on: ubuntu-latest
-    # 手動実行の場合のみジョブを起動
-    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

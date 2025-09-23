@@ -2,8 +2,8 @@ name: Send LINE Notification
 
 on:
   schedule:
-    # 1時間ごとに実行 (UTC)
-    - cron: '0 * * * *'
+    # 8時間ごとに実行 (UTC)
+    - cron: '0 */8 * * *'
     # 毎週日曜日の12:00 (UTC) に実行 (日本時間の21:00)
     - cron: '0 12 * * 0'
   # 手動でも実行できるようにする

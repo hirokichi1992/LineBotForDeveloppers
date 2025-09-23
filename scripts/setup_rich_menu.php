@@ -80,41 +80,57 @@ $result = json_decode($response, true);
 $richMenuId = $result['richMenuId'];
 echo "[SUCCESS] Rich Menu Object created. richMenuId: {$richMenuId}\n";
 
-// --- DELAY STEP ---
-echo "[INFO] Waiting 5 seconds for API replication...\n";
-sleep(5);
-// --- END DELAY STEP ---
-
 // ----------------------------------------------------------------------------
-// 2. Upload Rich Menu Image
+// 2. Upload Rich Menu Image (with Retry Logic)
 // ----------------------------------------------------------------------------
 echo "[INFO] Step 2: Uploading Rich Menu Image...\n";
 
-$ch = curl_init("https://api.line.me/v2/bot/richmenu/{$richMenuId}/content");
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($richMenuImagePath));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: image/png',
-    'Authorization: Bearer ' . $channelAccessToken,
-]);
+$maxRetries = 3;
+$retryDelay = 5; // Initial delay in seconds
+$uploadSuccess = false;
 
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+    echo "[INFO] Upload attempt #{$attempt}...\n";
 
-if ($http_code !== 200) {
-    // Attempt to delete the created rich menu object on failure
-    echo "[WARNING] Failed to upload image. Attempting to clean up created rich menu object...\n";
-    $ch_delete = curl_init("https://api.line.me/v2/bot/richmenu/{$richMenuId}");
-    curl_setopt($ch_delete, CURLOPT_CUSTOMREQUEST, 'DELETE');
-    curl_setopt($ch_delete, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $channelAccessToken]);
-    curl_exec($ch_delete);
-    curl_close($ch_delete);
-    die("[ERROR] Failed to upload rich menu image. HTTP Status: {$http_code} | Response: {$response}\n");
+    $ch = curl_init("https://api.line.me/v2/bot/richmenu/{$richMenuId}/content");
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($richMenuImagePath));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: image/png',
+        'Authorization: Bearer ' . $channelAccessToken,
+    ]);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code === 200) {
+        $uploadSuccess = true;
+        echo "[SUCCESS] Rich Menu Image uploaded.\n";
+        break; // Success, exit loop
+    }
+
+    if ($http_code === 404 && $attempt < $maxRetries) {
+        echo "[WARNING] Got 404 Not Found on attempt #{$attempt}. Retrying in {$retryDelay} seconds...\n";
+        sleep($retryDelay);
+        $retryDelay *= 2; // Exponential backoff
+    } else {
+        // On last attempt or for non-404 errors, fail permanently
+        echo "[WARNING] Failed to upload image. Attempting to clean up created rich menu object...\n";
+        $ch_delete = curl_init("https://api.line.me/v2/bot/richmenu/{$richMenuId}");
+        curl_setopt($ch_delete, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($ch_delete, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $channelAccessToken]);
+        curl_exec($ch_delete);
+        curl_close($ch_delete);
+        die("[ERROR] Failed to upload rich menu image after {$attempt} attempts. Final HTTP Status: {$http_code} | Response: {$response}\n");
+    }
 }
 
-echo "[SUCCESS] Rich Menu Image uploaded.\n";
+if (!$uploadSuccess) {
+    // This part should not be reached if die() is called, but as a fallback.
+    die("[ERROR] Could not upload rich menu image after all retries.\n");
+}
 
 // ----------------------------------------------------------------------------
 // 3. Set as Default Rich Menu

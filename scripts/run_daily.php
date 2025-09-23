@@ -71,8 +71,8 @@ foreach ($feeds as $feedKey => $feed) {
             $aiAnalysis = getAiAnalysis($articleContent['text'], $geminiApiKey);
 
             if (empty($aiAnalysis['summary'])) {
-                $description = strip_tags((string)($item->description ?? $item->summary));
-                $aiAnalysis['summary'] = mb_substr($description, 0, 150) . '…';
+                echo "[WARNING] AI analysis failed for article: {$title}. Skipping.\n";
+                continue;
             }
             
             $bubble = createFlexBubble(

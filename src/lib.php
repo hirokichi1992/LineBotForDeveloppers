@@ -4,7 +4,7 @@
 // APIのURLやその他の定数を定義
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
 define('LINE_REPLY_API_URL', 'https://api.line.me/v2/bot/message/reply');
-// define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'); // 動的に生成するためコメントアウト
+// define('GEMINI_API_URL', '...'); // 動的に生成するため不要
 define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
 
 /**
@@ -40,18 +40,15 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array
     }
 
     $imageUrl = '';
-    if (preg_match(
-        '/<meta\\s+property=(?P<quote>[\"\\])og:image(?P=quote)\\s+content=(?P<quote2>[\"\\])(.*?)(?P=quote2)\\s*\/?\?>/i',
-        $html,
-        $matches
-    )) {
+    // OGP画像取得の正規表現を修正
+    if (preg_match('/<meta\s+property=(?P<quote>["\])og:image(?P=quote)\s+content=(?P=quote2>["\])(.*?)(?P=quote2)\s*\/?\?>/i', $html, $matches)) {
         $imageUrl = html_entity_decode($matches[3]);
     }
 
     $text = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $html);
-    $text = preg_replace('#<style(.*?)>(.*?)</style>#is', '', $text);
+    $text = preg_replace('#<style(.*?)>(.*?)</style>#is', '', $html);
     $text = strip_tags($text);
-    $text = preg_replace('/\\s+/s', ' ', $text);
+    $text = preg_replace('/\s+/s', ' ', $text);
     $text = trim($text);
 
     return ['text' => $text, 'image_url' => $imageUrl];
@@ -131,6 +128,11 @@ function getAiAnalysis(string $text, string $apiKeysString): array
                 echo "[SUCCESS] AI analysis successful with key #" . ($keyIndex + 1) . " and model '{$model}'.\n";
                 $result = json_decode($response, true);
                 $aiOutputText = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+                if (empty($aiOutputText)) {
+                    echo "[WARNING] AI response text was empty for model '{$model}'. Trying next model/key...\n";
+                    continue; // Continue to next model
+                }
 
                 if (preg_match('/^`json\s*(.*?)\s*`$/s', $aiOutputText, $matches)) {
                     $aiOutputText = $matches[1];

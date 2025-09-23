@@ -1,17 +1,17 @@
 <?php
 error_log('[DEBUG] webhook.php execution started.');
 
-require_once __DIR__ . '/src/lib.php';
+require_once __DIR__ . '/../src/lib.php';
 
 // ----------------------------------------------------------------------------
 // Load Environment Variables
 // ----------------------------------------------------------------------------
-$dotenv_path = __DIR__ . '/.env';
+$dotenv_path = __DIR__ . '/../.env';
 if (file_exists($dotenv_path)) {
     $lines = file($dotenv_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0) continue;
-        if (preg_match('/^\s*([^=]+)\s*=\s*(.*?)?\s*$/', $line, $matches)) {
+        if (preg_match('/^\\s*([^=]+)\\s*=\\s*(.*?)\\s*$/', $line, $matches)) {
             putenv(sprintf('%s=%s', $matches[1], $matches[2]));
         }
     }
@@ -79,7 +79,6 @@ foreach ($events['events'] as $event) {
  */
 function handlePostbackEvent(array $event, string $channelAccessToken): void
 {
-    // This function remains unchanged.
     $replyToken = $event['replyToken'];
     $postbackDataString = $event['postback']['data'];
     parse_str($postbackDataString, $postbackData);
@@ -98,19 +97,15 @@ function handleTextMessage(array $event, string $channelAccessToken): void
 {
     $replyToken = $event['replyToken'];
     $userMessage = trim($event['message']['text']);
-    // Use echo for debugging since error_log might not be visible
-    echo "[DEBUG] handleTextMessage started. User message: " . $userMessage . "\n";
+    error_log("[INFO] Received text message: " . $userMessage);
 
     $parts = preg_split('/[\s　]+/u', $userMessage, 2);
     $command = $parts[0] ?? '';
     $keyword = $parts[1] ?? '';
 
-    /*
     if ($command !== '最新情報' && $command !== 'news') {
-        echo "[DEBUG] Not a command. Exiting.\n";
         return; // Ignore messages that are not commands
     }
-    */
 
     try {
         $pdo = getDbConnection();
@@ -119,7 +114,7 @@ function handleTextMessage(array $event, string $channelAccessToken): void
 
         if (!empty($keyword)) {
             // --- Keyword Search Mode ---
-            echo "[DEBUG] Search mode. Keyword: {$keyword}\n";
+            error_log("[INFO] Search mode. Keyword: {$keyword}");
             $stmt = $pdo->prepare(
                 "SELECT id, flex_message_json FROM articles 
                  WHERE title ILIKE :keyword OR summary ILIKE :keyword OR tags ILIKE :keyword
@@ -131,7 +126,7 @@ function handleTextMessage(array $event, string $channelAccessToken): void
 
         } else {
             // --- Unread Articles Mode ---
-            echo "[DEBUG] Unread mode.\n";
+            error_log("[INFO] Unread mode.");
             $stmt = $pdo->prepare(
                 "SELECT id, flex_message_json FROM articles 
                  WHERE is_archived = false 
@@ -141,8 +136,6 @@ function handleTextMessage(array $event, string $channelAccessToken): void
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $altText = '新着記事があります！';
         }
-        
-echo "[DEBUG] DB query executed. Found " . count($results) . " articles.\n";
 
         foreach ($results as $row) {
             $articleIds[] = $row['id'];
@@ -185,28 +178,23 @@ echo "[DEBUG] DB query executed. Found " . count($results) . " articles.\n";
 
         if (empty($bubbles)) {
             $replyText = empty($keyword) ? '新しいお知らせはありませんでした。' : "キーワード「{$keyword}」に一致する記事は見つかりませんでした。";
-            echo "[DEBUG] No bubbles to send. Replying with text: {$replyText}\n";
             replyLineMessage($channelAccessToken, $replyToken, [['type' => 'text', 'text' => $replyText]]);
-            echo "[DEBUG] After text reply call.\n";
             return;
         }
 
         $carouselMessage = ['type' => 'flex', 'altText' => $altText, 'contents' => ['type' => 'carousel', 'contents' => $bubbles]];
 
-        echo "[DEBUG] Attempting to send carousel reply...\n";
-        $replySuccess = replyLineMessage($channelAccessToken, $replyToken, [$carouselMessage]);
-        echo "[DEBUG] After carousel reply call. Success: " . ($replySuccess ? 'true' : 'false') . "\n";
-
-        if ($replySuccess) {
+        if (replyLineMessage($channelAccessToken, $replyToken, [$carouselMessage])) {
+            // Mark articles as archived only in unread mode
             if (empty($keyword) && !empty($articleIds)) {
                 $idList = implode(',', array_map('intval', $articleIds));
                 $pdo->exec("UPDATE articles SET is_archived = true WHERE id IN ({$idList})");
-                echo "[DEBUG] Archived " . count($articleIds) . " articles.\n";
+                error_log("[INFO] Archived " . count($articleIds) . " articles.");
             }
         }
 
     } catch (Exception $e) {
-        echo "[DEBUG] Exception caught: " . $e->getMessage() . "\n";
+        error_log("[ERROR] handleTextMessage failed: " . $e->getMessage());
         replyLineMessage($channelAccessToken, $replyToken, [['type' => 'text', 'text' => 'エラーが発生しました。しばらくしてからもう一度お試しください。']]);
     }
 }

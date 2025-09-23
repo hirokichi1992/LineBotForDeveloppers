@@ -22,7 +22,7 @@
 -   **データベース**: PostgreSQL
 -   **LINE API**: Messaging API
 -   **AI**: Google Gemini API
--   **ホスティング**: Render (Web Service + Cron Job)
+-   **ホスティング**: Render (Web Service)
 -   **CI/CD & 定期実行**: GitHub Actions
 -   **コンテナ技術**: Docker
 
@@ -41,7 +41,7 @@ cd your-repository-name
 
 ### 2. Renderでのサービス準備
 
-このBotは、Webhookを処理する「Web Service」と、記事を収集する「Cron Job」の2つのサービスをRender上で実行することを想定しています。
+このBotは、LINEからのWebhookを常時待機する「Web Service」をRender上で実行します。
 
 1.  **PostgreSQLデータベースの作成**
     -   Renderのダッシュボードで、新規にPostgreSQLデータベースを作成します（Freeプランで十分です）。
@@ -53,7 +53,7 @@ cd your-repository-name
 
 ### 3. 環境変数の設定
 
-作成したWeb Serviceの「Environment」タブで、以下の環境変数を設定します。Cron JobやGitHub Actionsでも同様のシークレット設定が必要です。
+作成したWeb Serviceの「Environment」タブで、以下の環境変数を設定します。後述するGitHub Actionsでも同様のシークレット設定が必要です。
 
 | キー                      | 説明                                                              |
 | ------------------------- | ----------------------------------------------------------------- |
@@ -129,4 +129,39 @@ return [
     ],
     // 他のフィードもこの形式で追加
 ];
+```
+
+---
+
+## システム構成図
+
+```mermaid
+graph TD
+    subgraph "User Interaction (LINE)"
+        A[<img src='https://seeklogo.com/images/L/line-logo-3E80503412-seeklogo.com.png' width='30' /><br>LINE User]
+        A -- "1. `最新情報`と送信" --> B(LINE Platform);
+        B -- "2. Webhook" --> C{<img src='https://render.com/images/logo-wordmark.svg' width='80' /><br>Web Service<br>(webhook.php)};
+        C -- "3. 記事データを要求" --> D[(<img src='https://www.postgresql.org/media/img/about/press/elephant.png' width='25' /><br>PostgreSQL DB)];
+        D -- "4. 記事データを返却" --> C;
+        C -- "5. Flex Messageを返信" --> B;
+        B -- "6. メッセージ表示" --> A;
+    end
+
+    subgraph "Periodic Job (Article Collection)"
+        E[<img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' width='30' /><br>GitHub Actions<br>(Scheduled Cron)] -- "7. `run_daily.php`実行" --> F{PHP Script};
+        F -- "8. RSS取得" --> G[External RSS Feeds];
+        G -- "9. 記事URL" --> F;
+        F -- "10. AI要約・クイズ生成を依頼" --> H[<img src='https://www.gstatic.com/images/branding/product/1x/gemini_48dp.png' width='25' /><br>Google Gemini API];
+        H -- "11. 分析結果" --> F;
+        F -- "12. 新しい記事をDBに保存" --> D;
+    end
+
+    style A fill:#fff,stroke:#333,stroke-width:2px
+    style B fill:#00B900,stroke:#fff,stroke-width:2px,color:#fff
+    style C fill:#4A90E2,stroke:#fff,stroke-width:2px,color:#fff
+    style D fill:#D1E6FA,stroke:#333,stroke-width:2px
+    style E fill:#24292E,stroke:#fff,stroke-width:2px,color:#fff
+    style F fill:#7A869A,stroke:#fff,stroke-width:2px,color:#fff
+    style G fill:#FBBC05,stroke:#333,stroke-width:2px
+    style H fill:#F2F2F2,stroke:#333,stroke-width:2px
 ```

@@ -4,7 +4,7 @@
 // APIのURLやその他の定数を定義
 define('LINE_API_URL', 'https://api.line.me/v2/bot/message/push');
 define('LINE_REPLY_API_URL', 'https://api.line.me/v2/bot/message/reply');
-define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent');
+// define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'); // 動的に生成するためコメントアウト
 define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
 
 /**
@@ -12,17 +12,17 @@ define('BROWSERLESS_API_URL', 'https://chrome.browserless.io/content');
  */
 function fetchArticleContent(string $url, string $scrapingApiKey): array
 {
-    echo "[INFO] Fetching article content from: {$url}\\n";
+    echo "[INFO] Fetching article content from: {$url}\n";
 
     if (!empty($scrapingApiKey)) {
-        echo "[INFO] Using Browserless.io to fetch content.\\n";
+        echo "[INFO] Using Browserless.io to fetch content.\n";
         $ch = curl_init(BROWSERLESS_API_URL . '?token=' . $scrapingApiKey);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['url' => $url]));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     } else {
-        echo "[INFO] Using direct cURL to fetch content.\\n";
+        echo "[INFO] Using direct cURL to fetch content.\n";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -35,13 +35,13 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array
     curl_close($ch);
 
     if ($http_code !== 200 || $html === false) {
-        echo "[WARNING] Failed to fetch article content. HTTP Status: {$http_code}\\n";
+        echo "[WARNING] Failed to fetch article content. HTTP Status: {$http_code}\n";
         return ['text' => '', 'image_url' => ''];
     }
 
     $imageUrl = '';
     if (preg_match(
-        '/<meta\\s+property=(?P<quote>[\"\\\'])og:image(?P=quote)\\s+content=(?P<quote2>[\"\\\'])(.*?)(?P=quote2)\\s*\\/?\\?>/i',
+        '/<meta\\s+property=(?P<quote>[\"\\])og:image(?P=quote)\\s+content=(?P<quote2>[\"\\])(.*?)(?P=quote2)\\s*\/?\?>/i',
         $html,
         $matches
     )) {
@@ -60,36 +60,44 @@ function fetchArticleContent(string $url, string $scrapingApiKey): array
 
 /**
  * Gemini APIを呼び出して、記事の要約、タグ、クイズを一度に取得する
+ * 複数のAPIキーと複数のモデルを順番に試行するフォールバック機能を持つ
  */
-function getAiAnalysis(string $text, string $apiKey): array
+function getAiAnalysis(string $text, string $apiKeysString): array
 {
     $defaultResponse = ['summary' => '', 'tags' => [], 'quiz' => null];
-    if (empty($apiKey) || empty($text)) {
-        echo "[INFO] API key or article text is empty. Skipping AI analysis.\\n";
+
+    // Get API Keys
+    $apiKeys = array_filter(array_map('trim', explode(',', $apiKeysString)));
+    if (empty($apiKeys) || empty($text)) {
+        echo "[INFO] API keys or article text is empty. Skipping AI analysis.\n";
         return $defaultResponse;
     }
 
-    $tagList = "セキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング,
-  マネジメント, その他";
-    $prompt = "以下の記事を分析し、指定のJSON形式で出力してください。\\n\\n"
-        . "# 制約\\n"
-        . "- summary:
-  顧客向けにスクラッチ開発を行うWebエンジニアの視点で、実務に応用できる提案を含めて日本語で200字程度に要約してください。\\n"
-        . "- tags: 記事の内容に最も関連性の高いタグを、以下のリストから最大3つまで選んでください。\\n"
-        . "- quiz: 記事の核心的な内容を問う三択クイズを1問作成してください。question（問題文）、options（3つの選択肢の配列）、correct_inde
-  x（正解のインデックス番号 0-2）のキーを持つオブジェクトにしてください。\\n"
-        . "- quizが不要または作成困難な場合は quiz の値を null にしてください。\\n\\n"
-        . "# 利用可能なタグリスト\\n{$tagList}\\n\\n"
-        . "# 記事\\n" . mb_substr($text, 0, 8000) . "\\n\\n"
-        . "# 出力形式 (JSONのみを返すこと)\\n"
-        . "{\\n"
-        . "  \"summary\": \"ここに要約が入ります。\",\\n"
-        . "  \"tags\": [\"タグ1\", \"タグ2\"],\\n"
-        . "  \"quiz\": {\\n"
-        . "    \"question\": \"ここに問題文が入ります。\",\\n"
-        . "    \"options\": [\"選択肢1\", \"選択肢2\", \"選択肢3\"],\\n"
-        . "    \"correct_index\": 0\\n"
-        . "  }\\n"
+    // Get Models to try
+    $modelsString = getenv('GEMINI_MODELS');
+    $models = !empty($modelsString) ? array_filter(array_map('trim', explode(',', $modelsString))) : ['gemini-1.5-flash-latest'];
+    if (empty($models)) {
+        $models = ['gemini-1.5-flash-latest']; // Fallback to a default model
+    }
+
+    $tagList = "セキュリティ, Web開発, アプリ開発, クラウド, インフラ, AI, プログラミング言語, キャリア, ハードウェア, マーケティング, マネジメント, その他";
+    $prompt = "以下の記事を分析し、指定のJSON形式で出力してください。\n\n" 
+        . "# 制約\n" 
+        . "- summary: 顧客向けにスクラッチ開発を行うWebエンジニアの視点で、実務に応用できる提案を含めて日本語で200字程度に要約してください。\n" 
+        . "- tags: 記事の内容に最も関連性の高いタグを、以下のリストから最大3つまで選んでください。\n" 
+        . "- quiz: 記事の核心的な内容を問う三択クイズを1問作成してください。question（問題文）、options（3つの選択肢の配列）、correct_index（正解のインデックス番号 0-2）のキーを持つオブジェクトにしてください。\n" 
+        . "- quizが不要または作成困難な場合は quiz の値を null にしてください。\n\n" 
+        . "# 利用可能なタグリスト\n{$tagList}\n\n" 
+        . "# 記事\n" . mb_substr($text, 0, 8000) . "\n\n" 
+        . "# 出力形式 (JSONのみを返すこと)\n" 
+        . "{\n" 
+        . "  \"summary\": \"ここに要約が入ります。\",\n" 
+        . "  \"tags\": [\"タグ1\", \"タグ2\"],\n" 
+        . "  \"quiz\": {\n" 
+        . "    \"question\": \"ここに問題文が入ります。\",\n" 
+        . "    \"options\": [\"選択肢1\", \"選択肢2\", \"選択肢3\"],\n" 
+        . "    \"correct_index\": 0\n" 
+        . "  }\n" 
         . "}";
 
     $data = [
@@ -101,56 +109,65 @@ function getAiAnalysis(string $text, string $apiKey): array
         ]
     ];
 
-    $ch = curl_init(GEMINI_API_URL . '?key=' . $apiKey);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    foreach ($apiKeys as $keyIndex => $apiKey) {
+        foreach ($models as $modelIndex => $model) {
+            echo "[INFO] Attempting AI analysis with API key #" . ($keyIndex + 1) . " and model '{$model}'...\n";
+            
+            $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
 
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+            $ch = curl_init($apiUrl . '?key=' . $apiKey);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
-    if ($http_code !== 200) {
-        echo "[WARNING] AI analysis request failed with HTTP Status: {$http_code}\\nResponse: {$response}\\n";
-        return $defaultResponse;
+            $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($http_code === 200) {
+                echo "[SUCCESS] AI analysis successful with key #" . ($keyIndex + 1) . " and model '{$model}'.\n";
+                $result = json_decode($response, true);
+                $aiOutputText = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+                if (preg_match('/^`json\s*(.*?)\s*`$/s', $aiOutputText, $matches)) {
+                    $aiOutputText = $matches[1];
+                }
+
+                $aiParsedOutput = json_decode($aiOutputText, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    echo "[WARNING] Failed to parse AI output text as JSON: " . json_last_error_msg() . "\nExtracted text: {$aiOutputText}\n";
+                    return $defaultResponse; // Don't retry on parsing failure
+                }
+
+                $quizData = $aiParsedOutput['quiz'] ?? null;
+                if ($quizData !== null && (!isset($quizData['question']) || !isset($quizData['options']) || !is_array($quizData['options']) || count($quizData['options']) !== 3 || !isset($quizData['correct_index']))) {
+                    $quizData = null;
+                }
+
+                return [
+                    'summary' => trim($aiParsedOutput['summary'] ?? ''),
+                    'tags' => $aiParsedOutput['tags'] ?? [],
+                    'quiz' => $quizData,
+                ];
+            }
+
+            if ($http_code === 429) {
+                echo "[WARNING] Rate limit hit for key #" . ($keyIndex + 1) . " with model '{$model}'. Trying next model/key...\n";
+                // Continue to the next model in the inner loop
+            } else {
+                echo "[WARNING] AI analysis failed for key #" . ($keyIndex + 1) . " with model '{$model}'. HTTP Status: {$http_code}. Breaking model loop to try next key.\n";
+                break; // Break from the inner model loop, proceed to the next API key
+            }
+        }
     }
 
-    $result = json_decode($response, true);
-    $aiOutputText = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
-
-    // AIの出力がMarkdownのコードブロックで囲まれている場合、それを取り除く
-    if (preg_match('/^`json\\s*(.*?)\\s*
-
-  `$/s', $aiOutputText, $matches)) {
-        $aiOutputText = $matches[1];
-        echo "[INFO] Cleaned up Markdown JSON code block.\\n";
-    }
-
-    $aiParsedOutput = json_decode($aiOutputText, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        echo "[WARNING] Failed to parse AI output text as JSON. Extracted text: {$aiOutputText}\\n";
-        return $defaultResponse;
-    }
-
-    // quizデータが期待通りか検証
-    $quizData = $aiParsedOutput['quiz'] ?? null;
-    if ($quizData !== null && (!isset($quizData['question']) || !isset($quizData['options']) || !is_array($quizData['options']) ||
-        count($quizData['options']) !== 3 || !isset($quizData['correct_index']))) {
-        echo "[WARNING] Generated quiz data is invalid. Discarding quiz.\\n";
-        $quizData = null; // 不正なクイズデータは破棄
-    }
-
-    return [
-        'summary' => trim($aiParsedOutput['summary'] ?? ''),
-        'tags' => $aiParsedOutput['tags'] ?? [],
-        'quiz' => $quizData,
-    ];
+    echo "[ERROR] AI analysis failed with all provided API keys and models.\n";
+    return $defaultResponse;
 }
-
 
 /**
  * cURLを使ってRSSフィードの内容を堅牢に取得する

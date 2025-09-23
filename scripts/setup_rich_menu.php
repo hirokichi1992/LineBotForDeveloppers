@@ -1,5 +1,5 @@
 <?php
-// scripts/setup_richmenu.php
+// scripts/setup_rich_menu.php
 
 echo "[INFO] Rich Menu Setup Script Started.\n";
 
@@ -79,6 +79,11 @@ if ($http_code !== 200) {
 $result = json_decode($response, true);
 $richMenuId = $result['richMenuId'];
 echo "[SUCCESS] Rich Menu Object created. richMenuId: {$richMenuId}\n";
+
+// --- DELAY STEP ---
+echo "[INFO] Waiting 5 seconds for API replication...\n";
+sleep(5);
+// --- END DELAY STEP ---
 
 // ----------------------------------------------------------------------------
 // 2. Upload Rich Menu Image

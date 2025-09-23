@@ -105,10 +105,12 @@ function handleTextMessage(array $event, string $channelAccessToken): void
     $command = $parts[0] ?? '';
     $keyword = $parts[1] ?? '';
 
+    /*
     if ($command !== '最新情報' && $command !== 'news') {
         echo "[DEBUG] Not a command. Exiting.\n";
         return; // Ignore messages that are not commands
     }
+    */
 
     try {
         $pdo = getDbConnection();

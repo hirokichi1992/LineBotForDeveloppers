@@ -25,7 +25,7 @@ if (empty($channelAccessToken)) {
     die("[ERROR] LINE_CHANNEL_ACCESS_TOKEN is not set. Please set it in your .env file or as an environment variable.\n");
 }
 
-$richMenuImagePath = ROOT_PATH . '/richmenu.png';
+$richMenuImagePath = ROOT_PATH . '/assets/richmenu.png';
 if (!file_exists($richMenuImagePath)) {
     die("[ERROR] richmenu.png not found in the project root directory.\n");
 }

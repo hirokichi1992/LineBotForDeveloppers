@@ -43,11 +43,7 @@ jobs:
           GEMINI_MODELS: ${{ secrets.GEMINI_MODELS }}
           SCRAPING_API_KEY: ${{ secrets.SCRAPING_API_KEY }}
         run: php scripts/run_daily.php
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: 'chore: Update last notified URL and weekly data'
-          file_pattern: 'data/last_notified_url_*.txt data/weekly_articles.json data/notifications/*.json'
+
 
   # 週間サマリーの送信ジョブ
   send_summary:
@@ -91,4 +87,6 @@ jobs:
       - name: Run rich menu setup script
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+        run: php scripts/setup_rich_menu.php
+_TOKEN }}
         run: php scripts/setup_rich_menu.php

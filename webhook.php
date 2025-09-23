@@ -140,7 +140,41 @@ function handleTextMessage(array $event, string $channelAccessToken): void
 
         foreach ($results as $row) {
             $articleIds[] = $row['id'];
-            $bubbles[] = json_decode($row['flex_message_json'], true);
+            $bubble = json_decode($row['flex_message_json'], true);
+
+            // --- Sanitize Flex Bubble on read ---
+            if (isset($bubble['body']['contents'])) {
+                foreach ($bubble['body']['contents'] as &$content) {
+                    // Identify the quiz button container
+                    if ($content['type'] === 'box' && isset($content['contents'][0]['type']) && $content['contents'][0]['type'] === 'button') {
+                        foreach ($content['contents'] as &$button) {
+                            if (isset($button['action']['type']) && $button['action']['type'] === 'postback') {
+                                // 1. Truncate label
+                                if (isset($button['action']['label'])) {
+                                    $button['action']['label'] = mb_substr($button['action']['label'], 0, 40);
+                                }
+                                if (isset($button['action']['displayText'])) {
+                                    $button['action']['displayText'] = mb_substr($button['action']['displayText'], 0, 40);
+                                }
+
+                                // 2. Truncate data field
+                                if (isset($button['action']['data'])) {
+                                    parse_str($button['action']['data'], $postbackData);
+                                    if (isset($postbackData['correct_answer'])) {
+                                        $postbackData['correct_answer'] = mb_substr($postbackData['correct_answer'], 0, 100);
+                                        $button['action']['data'] = http_build_query($postbackData);
+                                    }
+                                }
+                            }
+                        }
+                        unset($button);
+                    }
+                }
+                unset($content);
+            }
+            // --- End Sanitization ---
+
+            $bubbles[] = $bubble;
         }
 
         if (empty($bubbles)) {

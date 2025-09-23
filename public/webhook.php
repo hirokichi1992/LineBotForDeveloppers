@@ -98,13 +98,15 @@ function handleTextMessage(array $event, string $channelAccessToken): void
 {
     $replyToken = $event['replyToken'];
     $userMessage = trim($event['message']['text']);
-    error_log("[INFO] Received text message: " . $userMessage);
+    // Use echo for debugging since error_log might not be visible
+    echo "[DEBUG] handleTextMessage started. User message: " . $userMessage . "\n";
 
     $parts = preg_split('/[\s　]+/u', $userMessage, 2);
     $command = $parts[0] ?? '';
     $keyword = $parts[1] ?? '';
 
     if ($command !== '最新情報' && $command !== 'news') {
+        echo "[DEBUG] Not a command. Exiting.\n";
         return; // Ignore messages that are not commands
     }
 
@@ -115,19 +117,19 @@ function handleTextMessage(array $event, string $channelAccessToken): void
 
         if (!empty($keyword)) {
             // --- Keyword Search Mode ---
-            error_log("[INFO] Search mode. Keyword: {$keyword}");
+            echo "[DEBUG] Search mode. Keyword: {$keyword}\n";
             $stmt = $pdo->prepare(
                 "SELECT id, flex_message_json FROM articles 
                  WHERE title ILIKE :keyword OR summary ILIKE :keyword OR tags ILIKE :keyword
                  ORDER BY published_at DESC LIMIT 10"
             );
-            $stmt->execute([':keyword' => "%{$keyword}%"]);
+            $stmt->execute(['keyword' => "%{$keyword}%"]);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $altText = '「' . $keyword . '」の検索結果';
 
         } else {
             // --- Unread Articles Mode ---
-            error_log("[INFO] Unread mode.");
+            echo "[DEBUG] Unread mode.\n";
             $stmt = $pdo->prepare(
                 "SELECT id, flex_message_json FROM articles 
                  WHERE is_archived = false 
@@ -137,6 +139,8 @@ function handleTextMessage(array $event, string $channelAccessToken): void
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $altText = '新着記事があります！';
         }
+        
+echo "[DEBUG] DB query executed. Found " . count($results) . " articles.\n";
 
         foreach ($results as $row) {
             $articleIds[] = $row['id'];
@@ -179,23 +183,28 @@ function handleTextMessage(array $event, string $channelAccessToken): void
 
         if (empty($bubbles)) {
             $replyText = empty($keyword) ? '新しいお知らせはありませんでした。' : "キーワード「{$keyword}」に一致する記事は見つかりませんでした。";
+            echo "[DEBUG] No bubbles to send. Replying with text: {$replyText}\n";
             replyLineMessage($channelAccessToken, $replyToken, [['type' => 'text', 'text' => $replyText]]);
+            echo "[DEBUG] After text reply call.\n";
             return;
         }
 
         $carouselMessage = ['type' => 'flex', 'altText' => $altText, 'contents' => ['type' => 'carousel', 'contents' => $bubbles]];
 
-        if (replyLineMessage($channelAccessToken, $replyToken, [$carouselMessage])) {
-            // Mark articles as archived only in unread mode
+        echo "[DEBUG] Attempting to send carousel reply...\n";
+        $replySuccess = replyLineMessage($channelAccessToken, $replyToken, [$carouselMessage]);
+        echo "[DEBUG] After carousel reply call. Success: " . ($replySuccess ? 'true' : 'false') . "\n";
+
+        if ($replySuccess) {
             if (empty($keyword) && !empty($articleIds)) {
                 $idList = implode(',', array_map('intval', $articleIds));
                 $pdo->exec("UPDATE articles SET is_archived = true WHERE id IN ({$idList})");
-                error_log("[INFO] Archived " . count($articleIds) . " articles.");
+                echo "[DEBUG] Archived " . count($articleIds) . " articles.\n";
             }
         }
 
     } catch (Exception $e) {
-        error_log("[ERROR] handleTextMessage failed: " . $e->getMessage());
+        echo "[DEBUG] Exception caught: " . $e->getMessage() . "\n";
         replyLineMessage($channelAccessToken, $replyToken, [['type' => 'text', 'text' => 'エラーが発生しました。しばらくしてからもう一度お試しください。']]);
     }
 }

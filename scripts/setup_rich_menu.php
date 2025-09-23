@@ -92,7 +92,7 @@ $uploadSuccess = false;
 for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
     echo "[INFO] Upload attempt #{$attempt}...\n";
 
-    $ch = curl_init("https://api.line.me/v2/bot/richmenu/{$richMenuId}/content");
+    $ch = curl_init("https://api-data.line.me/v2/bot/richmenu/{$richMenuId}/content");
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($richMenuImagePath));
